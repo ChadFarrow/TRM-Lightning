@@ -125,7 +125,7 @@ export class RSSParser {
         response = await fetch(feedUrl, {
           method: 'GET',
           headers: {
-            'User-Agent': 'RSS-Music-Site/1.0',
+            'User-Agent': 'TRM-Lightning/1.0',
           },
         });
       } else {

@@ -15,7 +15,7 @@ export async function extractColorsFromImageServer(imageUrl: string): Promise<Ex
     // Fetch the image
     const response = await fetch(imageUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; RSS-Music-Site/1.0)',
+        'User-Agent': 'Mozilla/5.0 (compatible; TRM-Lightning/1.0)',
       },
     });
     

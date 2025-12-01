@@ -4,10 +4,10 @@ If you created your repository from this template and want to pull updates from 
 
 ## Step 1: Add the Template as Upstream Remote
 
-**In your new repository** (`ChadF-Test/RSS-music-site`), add the template repository as upstream:
+**In your new repository** (`ChadFarrow/TRM-Lightning`), add the template repository as upstream:
 
 ```bash
-git remote add upstream https://github.com/ChadFarrow/RSS-music-site-template.git
+git remote add upstream https://github.com/ChadFarrow/TRM-Lightning.git
 ```
 
 **Note:** Make sure you're in your new repository directory (not the template repository) when running this command.

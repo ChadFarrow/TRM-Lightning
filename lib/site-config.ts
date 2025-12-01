@@ -22,7 +22,7 @@ export function getSiteConfig(): SiteConfig {
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     apiUrl: process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000/api',
     defaultFeedUrl: process.env.NEXT_PUBLIC_DEFAULT_FEED_URL,
-    userAgent: process.env.NEXT_PUBLIC_USER_AGENT || 'RSS-Music-Site/1.0',
+    userAgent: process.env.NEXT_PUBLIC_USER_AGENT || 'TRM-Lightning/1.0',
   };
 }
 
@@ -51,6 +51,6 @@ export function getApiUrl(): string {
  * Get user agent string
  */
 export function getUserAgent(): string {
-  return getSiteConfig().userAgent || 'RSS-Music-Site/1.0';
+  return getSiteConfig().userAgent || 'TRM-Lightning/1.0';
 }
 

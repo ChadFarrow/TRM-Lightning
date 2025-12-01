@@ -8,8 +8,8 @@ A Lightning Network-powered Value4Value music platform template for bands and ar
 
 See this template in action with all features enabled:
 
-- **🌐 Live Demo Site**: [rss-music-site.vercel.app](https://rss-music-site.vercel.app/)
-- **📦 Demo Repository**: [ChadF-Test/RSS-music-site](https://github.com/ChadF-Test/RSS-music-site)
+- **🌐 Live Demo Site**: [trm-lightning.vercel.app](https://trm-lightning.vercel.app/)
+- **📦 Repository**: [ChadFarrow/TRM-Lightning](https://github.com/ChadFarrow/TRM-Lightning)
 - **🔗 Nostr**: Follow and interact with the demo site on Nostr: `npub1ada8z0wzef2wynrh59drnsx32wmajven69zggcnep3dtqc0a00nshja4wl`
 
 ## Deploy to Vercel

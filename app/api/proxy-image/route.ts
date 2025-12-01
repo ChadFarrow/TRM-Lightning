@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     // Fetch the image
     const response = await fetch(imageUrl, {
       headers: {
-        'User-Agent': process.env.NEXT_PUBLIC_USER_AGENT || 'RSS-Music-Site/1.0 (Image Proxy)',
+        'User-Agent': process.env.NEXT_PUBLIC_USER_AGENT || 'TRM-Lightning/1.0 (Image Proxy)',
         'Accept': 'image/*',
         'Accept-Encoding': 'gzip, deflate, br',
       },

@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Fetch the video/manifest file
     const response = await fetch(videoUrl, {
       headers: {
-        'User-Agent': process.env.NEXT_PUBLIC_USER_AGENT || 'RSS-Music-Site/1.0 (Video Proxy)',
+        'User-Agent': process.env.NEXT_PUBLIC_USER_AGENT || 'TRM-Lightning/1.0 (Video Proxy)',
         'Accept': 'application/vnd.apple.mpegurl, video/*, */*',
         'Origin': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
         'Referer': `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/`,
