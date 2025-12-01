@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, Zap } from 'lucide-react';
+import { parseBandName } from '@/lib/band-parser';
 import { useAudio } from '@/contexts/AudioContext';
 import { useLightning } from '@/contexts/LightningContext';
 import { BitcoinConnectPayment } from '@/components/BitcoinConnect';
@@ -43,6 +45,9 @@ interface AlbumDetailClientProps {
 
 export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDetailClientProps) {
   const { isLightningEnabled } = useLightning();
+  const searchParams = useSearchParams();
+  const bandFilter = searchParams.get('band');
+
   const [album, setAlbum] = useState<Album | null>(initialAlbum);
   const [isLoading, setIsLoading] = useState(!initialAlbum);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +60,18 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
   const [showTrackBoostModal, setShowTrackBoostModal] = useState(false);
   const [trackBoostAmount, setTrackBoostAmount] = useState(50);
   const [trackBoostMessage, setTrackBoostMessage] = useState('');
+
+  // Filter tracks by band if band parameter is present
+  const filteredTracks = useMemo(() => {
+    if (!album?.tracks || !bandFilter) return album?.tracks || [];
+    return album.tracks.filter(track => {
+      const trackBandName = parseBandName(track.title);
+      return trackBandName?.toLowerCase() === bandFilter.toLowerCase();
+    });
+  }, [album?.tracks, bandFilter]);
+
+  // Check if we're in band-filtered mode
+  const isBandFiltered = Boolean(bandFilter && filteredTracks.length > 0);
 
   // Load saved boost preferences from localStorage
   useEffect(() => {
@@ -398,29 +415,32 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
 
   const handlePlayAlbum = () => {
     if (!album) return;
-    
-    const audioTracks = album.tracks.map(track => ({
+
+    // Use filtered tracks when band-filtered
+    const tracksToPlay = isBandFiltered ? filteredTracks : album.tracks;
+    const audioTracks = tracksToPlay.map(track => ({
       ...track,
       artist: album.artist,
       album: album.title,
       image: track.image || album.coverArt
     }));
-    
-    globalPlayAlbum(audioTracks, 0, album.title);
+
+    globalPlayAlbum(audioTracks, 0, isBandFiltered && bandFilter ? `${bandFilter} - ${album.title}` : album.title);
   };
 
   const handlePlayTrack = (track: Track, index: number) => {
     if (!album) return;
-    
-    const audioTracks = album.tracks.map(t => ({
+
+    // Use filtered tracks when band-filtered
+    const tracksToPlay = isBandFiltered ? filteredTracks : album.tracks;
+    const audioTracks = tracksToPlay.map(t => ({
       ...t,
       artist: album.artist,
       album: album.title,
       image: t.image || album.coverArt
     }));
-    
-    
-    globalPlayAlbum(audioTracks, index, album.title);
+
+    globalPlayAlbum(audioTracks, index, isBandFiltered && bandFilter ? `${bandFilter} - ${album.title}` : album.title);
   };
 
 
@@ -646,13 +666,23 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     {getSiteName()}
                   </Link>
                   <span className="text-gray-600">/</span>
-                  <span className="font-medium truncate max-w-[200px]">{album.title}</span>
+                  {isBandFiltered ? (
+                    <>
+                      <Link href={`/album/${generateSlug(album.title)}`} className="text-gray-400 hover:text-white transition-colors truncate max-w-[150px]">
+                        {album.title}
+                      </Link>
+                      <span className="text-gray-600">/</span>
+                      <span className="font-medium truncate max-w-[150px]">{bandFilter}</span>
+                    </>
+                  ) : (
+                    <span className="font-medium truncate max-w-[200px]">{album.title}</span>
+                  )}
                 </div>
               </div>
 
               {/* Desktop Version Info */}
               <div className="hidden sm:block text-xs text-gray-400">
-                {album.tracks.length} tracks • {getReleaseYear()}
+                {filteredTracks.length} tracks • {getReleaseYear()}
               </div>
             </div>
           </div>
@@ -693,12 +723,14 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
               <div className="flex-1 text-center lg:text-left">
                 <div className="mb-4">
                   <h1 className="text-4xl lg:text-5xl font-bold mb-2 text-white text-shadow">
-                    {album.title}
+                    {isBandFiltered ? bandFilter : album.title}
                   </h1>
-                  <p className="text-xl lg:text-2xl text-gray-300 mb-2 text-shadow-sm">{album.artist}</p>
-                  
-                  {/* Publisher Link */}
-                  {album.publisher && (
+                  <p className="text-xl lg:text-2xl text-gray-300 mb-2 text-shadow-sm">
+                    {isBandFiltered ? album.title : album.artist}
+                  </p>
+
+                  {/* Publisher Link - hide when band filtered */}
+                  {!isBandFiltered && album.publisher && (
                     <div className="mb-4">
                       <Link
                         href={`/publisher/${getPublisherSlug(album.artist)}`}
@@ -710,7 +742,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                       </Link>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-200 mb-6 text-shadow-sm">
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
@@ -718,11 +750,12 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                      {album.tracks.length} tracks
+                      {filteredTracks.length} tracks
                     </span>
                   </div>
 
-                  {album.description && (
+                  {/* Description - hide when band filtered */}
+                  {!isBandFiltered && album.description && (
                     <div className="max-w-2xl mx-auto lg:mx-0 mb-6 bg-black/40 backdrop-blur-md rounded-xl border border-white/20 p-6">
                       <p className="text-white leading-relaxed">{album.description}</p>
                     </div>
@@ -798,7 +831,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
               </div>
               
               <div className="divide-y divide-white/10">
-                {album.tracks.map((track, index) => {
+                {filteredTracks.map((track, index) => {
                   const isCurrentTrack = currentTrack?.url === track.url;
                   const isCurrentlyPlaying = isTrackPlaying(track);
                   
@@ -820,7 +853,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                           </div>
                         ) : (
                           <span className={`text-sm font-medium ${isCurrentTrack ? 'text-blue-400' : 'text-gray-200 group-hover:text-white'} text-shadow-sm`}>
-                            {track.trackNumber}
+                            {isBandFiltered ? index + 1 : track.trackNumber}
                           </span>
                         )}
                       </div>

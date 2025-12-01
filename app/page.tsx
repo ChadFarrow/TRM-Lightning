@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -19,6 +19,16 @@ import { extractPaymentRecipients } from '@/lib/payment-recipient-utils';
 import PaymentSplitsDisplay from '@/components/PaymentSplitsDisplay';
 import { createBoostMetadata } from '@/lib/boost-metadata-utils';
 import { fetchAlbumsWithFallback } from '@/lib/album-fetch-utils';
+import {
+  isFullShow,
+  isBandSet,
+  extractBandSets,
+  extractVideoTracks,
+  extractAudioTracks,
+  extractFullShowTracks,
+  type BandSet,
+  type TrackWithContext,
+} from '@/lib/band-parser';
 import { DARK_HEADER_BG, DARK_HEADER_BORDER, DARK_OVERLAY_BG, DARK_BUTTON_CLASSES, DARK_CARD_CLASSES, DARK_BADGE_BG, DARK_BADGE_TEXT } from '@/lib/theme-utils';
 import BackgroundImage from '@/components/BackgroundImage';
 import Sidebar from '@/components/Sidebar';
@@ -46,6 +56,16 @@ import LightningToggle from '@/components/LightningToggle';
 
 const PublisherCard = dynamic(() => import('@/components/PublisherCard'), {
   loading: () => <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 h-20 animate-pulse"></div>,
+  ssr: false
+});
+
+const TrackCard = dynamic(() => import('@/components/TrackCard'), {
+  loading: () => <div className="bg-white/5 backdrop-blur-sm rounded-xl aspect-square animate-pulse"></div>,
+  ssr: false
+});
+
+const BandSetCard = dynamic(() => import('@/components/BandSetCard'), {
+  loading: () => <div className="bg-white/5 backdrop-blur-sm rounded-xl aspect-square animate-pulse"></div>,
   ssr: false
 });
 
@@ -154,7 +174,7 @@ export default function HomePage() {
   const [backgroundImageLoaded, setBackgroundImageLoaded] = useState(false);
 
   // Controls state
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [activeFilter, setActiveFilter] = useState<FilterType>('full_shows');
   const [viewType, setViewType] = useState<ViewType>('grid');
 
   // Fisher-Yates shuffle algorithm
@@ -389,7 +409,7 @@ export default function HomePage() {
     // Filter out LNURL Testing Podcast from main page display (accessible via sidebar)
     const albumsToUse = albums.filter(album => album.title !== 'LNURL Testing Podcast');
     
-          // Universal sorting function that implements hierarchical order: Pinned → Albums → EPs → Singles
+          // Universal sorting function that implements hierarchical order: Pinned → Full Shows → Band Sets
       const sortWithHierarchy = (albums: Album[]) => {
         return albums.sort((a, b) => {
           // Pin specific albums to the top in order
@@ -397,7 +417,7 @@ export default function HomePage() {
           const pinnedOrder: string[] = process.env.NEXT_PUBLIC_PINNED_ALBUMS?.split(',') || [];
           const aIndex = pinnedOrder.indexOf(a.title);
           const bIndex = pinnedOrder.indexOf(b.title);
-          
+
           // If both are pinned, sort by pinnedOrder
           if (aIndex !== -1 && bIndex !== -1) {
             return aIndex - bIndex;
@@ -406,26 +426,20 @@ export default function HomePage() {
           if (aIndex !== -1) return -1;
           if (bIndex !== -1) return 1;
 
-          // Hierarchical sorting: Albums (7+ tracks) → EPs (2-6 tracks) → Singles (1 track)
-          const aIsAlbum = a.tracks.length > 6;
-          const bIsAlbum = b.tracks.length > 6;
-          const aIsEP = a.tracks.length > 1 && a.tracks.length <= 6;
-          const bIsEP = b.tracks.length > 1 && b.tracks.length <= 6;
-          const aIsSingle = a.tracks.length === 1;
-          const bIsSingle = b.tracks.length === 1;
-          
-          // Albums come first
-          if (aIsAlbum && !bIsAlbum) return -1;
-          if (!aIsAlbum && bIsAlbum) return 1;
-          
-          // EPs come second (if both are not albums)
-          if (aIsEP && !bIsEP) return -1;
-          if (!aIsEP && bIsEP) return 1;
-          
-          // Singles come last (if both are not albums or EPs)
-          if (aIsSingle && !bIsSingle) return -1;
-          if (!aIsSingle && bIsSingle) return 1;
-          
+          // Hierarchical sorting: Full Shows → Videos → Audio/Band Sets
+          const aHasFullShow = a.tracks.some(track => isFullShow(track));
+          const bHasFullShow = b.tracks.some(track => isFullShow(track));
+          const aHasVideo = a.tracks.some(track => track.mediaType === 'video');
+          const bHasVideo = b.tracks.some(track => track.mediaType === 'video');
+
+          // Full shows come first
+          if (aHasFullShow && !bHasFullShow) return -1;
+          if (!aHasFullShow && bHasFullShow) return 1;
+
+          // Videos come second
+          if (aHasVideo && !bHasVideo) return -1;
+          if (!aHasVideo && bHasVideo) return 1;
+
           // If same type, sort by title
           return a.title.localeCompare(b.title);
         });
@@ -435,19 +449,31 @@ export default function HomePage() {
     let filtered = albumsToUse;
     
     switch (activeFilter) {
-      case 'albums':
-        filtered = albumsToUse.filter(album => album.tracks.length > 6);
+      case 'full_shows':
+        // Albums containing full show tracks (long videos without band name pattern)
+        filtered = albumsToUse.filter(album =>
+          album.tracks.some(track => isFullShow(track))
+        );
         break;
-      case 'eps':
-        filtered = albumsToUse.filter(album => album.tracks.length > 1 && album.tracks.length <= 6);
+      case 'band_sets':
+        // Albums containing individual band set tracks
+        filtered = albumsToUse.filter(album =>
+          album.tracks.some(track => isBandSet(track))
+        );
         break;
-      case 'singles':
-        filtered = albumsToUse.filter(album => album.tracks.length === 1);
+      case 'videos':
+        // Albums with video tracks
+        filtered = albumsToUse.filter(album =>
+          album.tracks.some(track => track.mediaType === 'video')
+        );
         break;
-      case 'publishers':
-        // For publishers filter, we'll show publishers instead of albums
-        return publishers;
-      default: // 'all'
+      case 'audio':
+        // Albums with audio tracks
+        filtered = albumsToUse.filter(album =>
+          album.tracks.some(track => track.mediaType === 'audio' || !track.mediaType)
+        );
+        break;
+      default: // 'full_shows' and others - show all albums
         filtered = albumsToUse;
     }
 
@@ -456,11 +482,38 @@ export default function HomePage() {
   };
 
   const filteredAlbums = getFilteredAlbums();
-  
-  // Debug: Log publishers when filter is active
-  useEffect(() => {
-    // Publishers filter logic handled in getFilteredAlbums
-  }, [activeFilter, publishers, filteredAlbums]);
+
+  // Computed values for different filter types
+  const bandSets = useMemo(() => extractBandSets(albums), [albums]);
+  const videoTracks = useMemo(() => {
+    const tracks = extractVideoTracks(albums);
+    // Sort so [Raw Set] tracks appear at the end (case-insensitive)
+    return tracks.sort((a, b) => {
+      const aIsRaw = a.title.toLowerCase().includes('[raw set]');
+      const bIsRaw = b.title.toLowerCase().includes('[raw set]');
+      if (aIsRaw && !bIsRaw) return 1;
+      if (!aIsRaw && bIsRaw) return -1;
+      return 0;
+    });
+  }, [albums]);
+  const audioTracks = useMemo(() => extractAudioTracks(albums), [albums]);
+  const fullShowTracks = useMemo(() => extractFullShowTracks(albums), [albums]);
+
+  // Get the count for the current filter
+  const getFilteredCount = () => {
+    switch (activeFilter) {
+      case 'full_shows':
+        return filteredAlbums.length;
+      case 'band_sets':
+        return bandSets.length;
+      case 'videos':
+        return videoTracks.length;
+      case 'audio':
+        return audioTracks.length;
+      default:
+        return filteredAlbums.length;
+    }
+  };
 
 
   return (
@@ -588,7 +641,7 @@ export default function HomePage() {
                 Retry
               </button>
             </div>
-          ) : (activeFilter === 'publishers' && publishers.length > 0) || (activeFilter !== 'publishers' && filteredAlbums.length > 0) ? (
+          ) : getFilteredCount() > 0 ? (
             <div className="max-w-7xl mx-auto">
               {/* Controls Bar */}
               <ControlsBar
@@ -596,207 +649,253 @@ export default function HomePage() {
                 onFilterChange={setActiveFilter}
                 viewType={viewType}
                 onViewChange={setViewType}
-                showShuffle={true}
+                showShuffle={activeFilter === 'full_shows'}
                 onShuffle={handleShuffle}
-                resultCount={activeFilter === 'publishers' ? publishers.length : filteredAlbums.length}
-                resultLabel={activeFilter === 'all' ? 'Releases' : 
-                  activeFilter === 'albums' ? 'Albums' :
-                  activeFilter === 'eps' ? 'EPs' : 
-                  activeFilter === 'singles' ? 'Singles' : 
-                  activeFilter === 'publishers' ? 'Artists' : 'Releases'}
+                resultCount={getFilteredCount()}
+                resultLabel={
+                  activeFilter === 'full_shows' ? 'Shows' :
+                  activeFilter === 'band_sets' ? 'Sets' :
+                  activeFilter === 'videos' ? 'Videos' :
+                  activeFilter === 'audio' ? 'Tracks' : 'Items'}
                 className="mb-8"
               />
 
 
-              {/* Albums Display */}
-              {activeFilter === 'publishers' ? (
-                // Publishers display
-                publishers.length > 0 ? (
-                  <div className="space-y-4">
-                    {publishers.map((publisher: any, index: number) => (
-                      <PublisherCard
-                        key={`publisher-${index}`}
-                        publisher={publisher}
-                      />
+              {/* Content Display based on active filter */}
+              {activeFilter === 'full_shows' ? (
+                // Full Shows - Display album cards
+                viewType === 'list' ? (
+                  <div className="space-y-2">
+                    {filteredAlbums.map((album, index) => (
+                      <div
+                        key={`album-list-${index}`}
+                        className={`${DARK_CARD_CLASSES} p-3 sm:p-4 flex items-center gap-3 sm:gap-4 cursor-pointer hover:bg-white/10 transition-colors`}
+                        onClick={() => {
+                          const audioTracks = album.tracks.map(track => ({
+                            ...track,
+                            artist: album.artist,
+                            album: album.title,
+                            image: track.image || album.coverArt
+                          }));
+                          globalPlayAlbum(audioTracks, 0, album.title);
+                        }}
+                      >
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded overflow-hidden">
+                          <Image
+                            src={album.coverArt}
+                            alt={album.title}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-sm sm:text-base truncate">{album.title}</h3>
+                          <p className="text-gray-400 text-xs sm:text-sm truncate">{album.artist}</p>
+                        </div>
+                        <div className="text-gray-400 text-sm">{album.tracks.length} tracks</div>
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-400 text-lg">No artists found</p>
-                    <p className="text-gray-500 text-sm mt-2">Publishers will appear here once feeds are parsed</p>
-                    <button 
-                      onClick={() => loadCriticalAlbums()}
-                      className={`mt-4 px-4 py-2 ${DARK_BUTTON_CLASSES}`}
-                    >
-                      Retry Loading
-                    </button>
-                  </div>
-                )
-              ) : activeFilter === 'all' ? (
-                // Original sectioned layout for "All" filter
-                <>
-                  {/* Albums Grid */}
-                  {(() => {
-                    const albumsWithMultipleTracks = filteredAlbums.filter(album => album.tracks.length > 6);
-                    return albumsWithMultipleTracks.length > 0 && (
-                      <div className="mb-12">
-                        <h2 className="text-2xl font-bold mb-6">Albums</h2>
-                        {viewType === 'grid' ? (
-                          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                            {albumsWithMultipleTracks.map((album, index) => (
-                              <AlbumCard
-                                key={`album-${index}`}
-                                album={album}
-                                onPlay={playAlbum}
-                                onBoostClick={handleBoostClick}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {albumsWithMultipleTracks.map((album, index) => (
-                              <Link
-                                key={`album-${index}`}
-                                href={`/album/${encodeURIComponent(generateAlbumSlug(album.title))}`}
-                                className={`group flex items-center gap-4 p-4 ${DARK_CARD_CLASSES}`}
-                              >
-                                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                                  <Image 
-                                    src={album.coverArt} 
-                                    alt={album.title}
-                                    width={64}
-                                    height={64}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                                
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-semibold text-lg group-hover:text-white transition-colors truncate">
-                                    {album.title}
-                                  </h3>
-                                  <p className="text-gray-400 text-sm truncate">{album.artist}</p>
-                                </div>
-                                
-                                <div className="flex items-center gap-4 text-sm text-gray-400">
-                                  <span>{new Date(album.releaseDate).getFullYear()}</span>
-                                  <span>{album.tracks.length} tracks</span>
-                                  <span className={`px-2 py-1 ${DARK_BADGE_BG} rounded text-xs ${DARK_BADGE_TEXT}`}>Album</span>
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  
-                  {/* EPs and Singles Grid */}
-                  {(() => {
-                    const epsAndSingles = filteredAlbums.filter(album => album.tracks.length <= 6);
-                    return epsAndSingles.length > 0 && (
-                      <div>
-                        <h2 className="text-2xl font-bold mb-6">EPs and Singles</h2>
-                        {viewType === 'grid' ? (
-                          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                            {epsAndSingles.map((album, index) => (
-                              <AlbumCard
-                                key={`ep-single-${index}`}
-                                album={album}
-                                onPlay={playAlbum}
-                                onBoostClick={handleBoostClick}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {epsAndSingles.map((album, index) => (
-                              <Link
-                                key={`ep-single-${index}`}
-                                href={`/album/${encodeURIComponent(generateAlbumSlug(album.title))}`}
-                                className={`group flex items-center gap-4 p-4 ${DARK_CARD_CLASSES}`}
-                              >
-                                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                                  <Image 
-                                    src={album.coverArt} 
-                                    alt={album.title}
-                                    width={64}
-                                    height={64}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                                
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-semibold text-lg group-hover:text-white transition-colors truncate">
-                                    {album.title}
-                                  </h3>
-                                  <p className="text-gray-400 text-sm truncate">{album.artist}</p>
-                                </div>
-                                
-                                <div className="flex items-center gap-4 text-sm text-gray-400">
-                                  <span>{new Date(album.releaseDate).getFullYear()}</span>
-                                  <span>{album.tracks.length} tracks</span>
-                                  <span className={`px-2 py-1 ${DARK_BADGE_BG} rounded text-xs ${DARK_BADGE_TEXT}`}>
-                                    {album.tracks.length === 1 ? 'Single' : 'EP'}
-                                  </span>
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </>
-              ) : (
-                // Unified layout for specific filters (Albums, EPs, Singles)
-                viewType === 'grid' ? (
                   <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                     {filteredAlbums.map((album, index) => (
                       <AlbumCard
-                        key={`${album.title}-${index}`}
+                        key={`album-${index}`}
                         album={album}
                         onPlay={playAlbum}
                         onBoostClick={handleBoostClick}
                       />
                     ))}
                   </div>
-                ) : (
+                )
+              ) : activeFilter === 'band_sets' ? (
+                // Band Sets - Display band set cards (band + show combination)
+                viewType === 'list' ? (
                   <div className="space-y-2">
-                    {filteredAlbums.map((album, index) => (
-                      <Link
-                        key={`${album.title}-${index}`}
-                        href={`/album/${encodeURIComponent(generateAlbumSlug(album.title))}`}
-                        className="group flex items-center gap-4 p-4 bg-black/40 backdrop-blur-md rounded-xl hover:bg-black/50 transition-all duration-200 border border-white/20 hover:border-white/30"
+                    {bandSets.map((bandSet, index) => (
+                      <div
+                        key={`bandset-list-${index}`}
+                        className={`${DARK_CARD_CLASSES} p-3 sm:p-4 flex items-center gap-3 sm:gap-4 cursor-pointer hover:bg-white/10 transition-colors`}
+                        onClick={() => {
+                          if (bandSet.tracks.length > 0) {
+                            const tracks = bandSet.tracks.map(t => ({
+                              ...t,
+                              artist: bandSet.bandName,
+                              album: bandSet.showName,
+                              image: t.image || bandSet.coverArt
+                            }));
+                            globalPlayAlbum(tracks, 0, `${bandSet.bandName} - ${bandSet.showName}`);
+                          }
+                        }}
                       >
-                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                          <Image 
-                            src={album.coverArt} 
-                            alt={album.title}
-                            width={64}
-                            height={64}
-                            className="w-full h-full object-cover"
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded overflow-hidden">
+                          <Image
+                            src={bandSet.coverArt}
+                            alt={`${bandSet.bandName} - ${bandSet.showName}`}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
                           />
                         </div>
-                        
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-lg group-hover:text-gray-200 transition-colors truncate">
-                            {album.title}
-                          </h3>
-                          <p className="text-gray-400 text-sm truncate">{album.artist}</p>
+                          <h3 className="font-semibold text-white text-sm sm:text-base truncate">{bandSet.bandName}</h3>
+                          <p className="text-gray-400 text-xs sm:text-sm truncate">{bandSet.showName}</p>
                         </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-gray-400">
-                          <span>{new Date(album.releaseDate).getFullYear()}</span>
-                          <span>{album.tracks.length} tracks</span>
-                          <span className="px-2 py-1 bg-black/60 rounded text-xs text-white">
-                            {album.tracks.length <= 6 ? (album.tracks.length === 1 ? 'Single' : 'EP') : 'Album'}
-                          </span>
-                        </div>
-                      </Link>
+                        <div className="text-gray-400 text-sm">{bandSet.trackCount} tracks</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                    {bandSets.map((bandSet, index) => (
+                      <BandSetCard
+                        key={`bandset-${index}`}
+                        bandSet={bandSet}
+                        onPlay={(bandSet) => {
+                          // Play all tracks from this band set
+                          if (bandSet.tracks.length > 0) {
+                            const tracks = bandSet.tracks.map(t => ({
+                              ...t,
+                              artist: bandSet.bandName,
+                              album: bandSet.showName,
+                              image: t.image || bandSet.coverArt
+                            }));
+                            globalPlayAlbum(tracks, 0, `${bandSet.bandName} - ${bandSet.showName}`);
+                          }
+                        }}
+                      />
                     ))}
                   </div>
                 )
-              )}
+              ) : activeFilter === 'videos' ? (
+                // Videos - Display track cards for video tracks
+                viewType === 'list' ? (
+                  <div className="space-y-2">
+                    {videoTracks.map((track, index) => {
+                      const isRawSet = track.title.toLowerCase().includes('[raw set]');
+                      return (
+                        <div
+                          key={`video-list-${index}`}
+                          className={`${DARK_CARD_CLASSES} p-3 sm:p-4 flex items-center gap-3 sm:gap-4 cursor-pointer hover:bg-white/10 transition-colors`}
+                          onClick={() => {
+                            const albumForTrack = albums.find(a => a.title === track.albumTitle);
+                            if (albumForTrack) {
+                              const trackIndex = albumForTrack.tracks.findIndex(t => t.title === track.title);
+                              const tracks = albumForTrack.tracks.map(t => ({
+                                ...t,
+                                artist: albumForTrack.artist,
+                                album: albumForTrack.title,
+                                image: t.image || albumForTrack.coverArt
+                              }));
+                              globalPlayAlbum(tracks, trackIndex >= 0 ? trackIndex : 0, albumForTrack.title);
+                            }
+                          }}
+                        >
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded overflow-hidden">
+                            <Image
+                              src={track.image || track.albumCoverArt}
+                              alt={track.title}
+                              fill
+                              className="object-cover"
+                              sizes="80px"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-white text-sm sm:text-base truncate">{track.title}</h3>
+                            <p className="text-gray-400 text-xs sm:text-sm truncate">{track.albumTitle}</p>
+                          </div>
+                          <div className="text-gray-400 text-sm font-mono">{track.duration}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                    {videoTracks.map((track, index) => (
+                      <TrackCard
+                        key={`video-${index}`}
+                        track={track}
+                        onPlay={(track) => {
+                          const albumForTrack = albums.find(a => a.title === track.albumTitle);
+                          if (albumForTrack) {
+                            const trackIndex = albumForTrack.tracks.findIndex(t => t.title === track.title);
+                            const tracks = albumForTrack.tracks.map(t => ({
+                              ...t,
+                              artist: albumForTrack.artist,
+                              album: albumForTrack.title,
+                              image: t.image || albumForTrack.coverArt
+                            }));
+                            globalPlayAlbum(tracks, trackIndex >= 0 ? trackIndex : 0, albumForTrack.title);
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : activeFilter === 'audio' ? (
+                // Audio - Display track cards for audio tracks
+                viewType === 'list' ? (
+                  <div className="space-y-2">
+                    {audioTracks.map((track, index) => (
+                      <div
+                        key={`audio-list-${index}`}
+                        className={`${DARK_CARD_CLASSES} p-3 sm:p-4 flex items-center gap-3 sm:gap-4 cursor-pointer hover:bg-white/10 transition-colors`}
+                        onClick={() => {
+                          const albumForTrack = albums.find(a => a.title === track.albumTitle);
+                          if (albumForTrack) {
+                            const trackIndex = albumForTrack.tracks.findIndex(t => t.title === track.title);
+                            const tracks = albumForTrack.tracks.map(t => ({
+                              ...t,
+                              artist: albumForTrack.artist,
+                              album: albumForTrack.title,
+                              image: t.image || albumForTrack.coverArt
+                            }));
+                            globalPlayAlbum(tracks, trackIndex >= 0 ? trackIndex : 0, albumForTrack.title);
+                          }
+                        }}
+                      >
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded overflow-hidden">
+                          <Image
+                            src={track.image || track.albumCoverArt}
+                            alt={track.title}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-sm sm:text-base truncate">{track.title}</h3>
+                          <p className="text-gray-400 text-xs sm:text-sm truncate">{track.albumTitle}</p>
+                        </div>
+                        <div className="text-gray-400 text-sm font-mono">{track.duration}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                    {audioTracks.map((track, index) => (
+                      <TrackCard
+                        key={`audio-${index}`}
+                        track={track}
+                        onPlay={(track) => {
+                          const albumForTrack = albums.find(a => a.title === track.albumTitle);
+                          if (albumForTrack) {
+                            const trackIndex = albumForTrack.tracks.findIndex(t => t.title === track.title);
+                            const tracks = albumForTrack.tracks.map(t => ({
+                              ...t,
+                              artist: albumForTrack.artist,
+                              album: albumForTrack.title,
+                              image: t.image || albumForTrack.coverArt
+                            }));
+                            globalPlayAlbum(tracks, trackIndex >= 0 ? trackIndex : 0, albumForTrack.title);
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : null}
             </div>
           ) : (
             <div className="text-center py-12">

@@ -2,7 +2,7 @@
 
 import { Filter, Grid3X3, List, Shuffle } from 'lucide-react';
 
-export type FilterType = 'all' | 'albums' | 'eps' | 'singles' | 'publishers' | 'playlist';
+export type FilterType = 'full_shows' | 'band_sets' | 'videos' | 'audio' | 'playlist';
 export type ViewType = 'grid' | 'list';
 interface ControlsBarProps {
   // Filter props
@@ -27,11 +27,10 @@ interface ControlsBarProps {
 }
 
 const defaultFilters: { value: FilterType; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'albums', label: 'Albums' },
-  { value: 'eps', label: 'EPs' },
-  { value: 'singles', label: 'Singles' },
-  { value: 'publishers', label: 'Artists' },
+  { value: 'full_shows', label: 'Full Shows' },
+  { value: 'band_sets', label: 'Band Sets' },
+  { value: 'videos', label: 'Videos' },
+  { value: 'audio', label: 'Audio' },
 ];
 
 export default function ControlsBar({
