@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import VideoCover from './VideoCover';
 import { Play, Pause, Music, Zap } from 'lucide-react';
 import type { RSSValue, RSSValueRecipient } from '@/lib/rss-parser';
 import { useLightning } from '@/contexts/LightningContext';
@@ -160,16 +161,13 @@ function AlbumCard({ album, isPlaying = false, onPlay, onBoostClick, className =
           }
         }}
       >
-        <Image
+        <VideoCover
           src={album.coverArt}
           alt={`${album.title} by ${album.artist}`}
           fill
-          className={`object-cover transition-opacity duration-300 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="object-cover"
           onLoad={handleImageLoad}
           onError={handleImageError}
-          priority={false}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
         />
         
