@@ -15,8 +15,10 @@ export interface RSSTrack {
   value?: RSSValue; // Track-level podcast:value data
   endTime?: number;   // Add time segment support
   paymentRecipients?: Array<{ address: string; split: number; name?: string; fee?: boolean; type?: string }>; // Pre-processed track payment recipients
+  mediaType?: 'audio' | 'video'; // Type of media (default: audio)
+  mimeType?: string; // MIME type from RSS enclosure
   // Podcast GUIDs for Nostr boost tagging
-  guid?: string; // Item GUID from RSS <guid> element  
+  guid?: string; // Item GUID from RSS <guid> element
   podcastGuid?: string; // podcast:guid at item level
   feedGuid?: string; // Feed GUID from podcast namespace
   feedUrl?: string; // Feed URL for this track
@@ -574,13 +576,15 @@ export class RSSParser {
         }
         // Try multiple ways to get the track URL
         let url: string | undefined = undefined;
-        
+        let mimeType: string | undefined = undefined;
+
         // Method 1: Try enclosure tag (standard RSS)
         const enclosureElement = item.getElementsByTagName('enclosure')[0];
         if (enclosureElement) {
           url = enclosureElement.getAttribute('url') || undefined;
+          mimeType = enclosureElement.getAttribute('type') || undefined;
         }
-        
+
         // Method 2: Try link tag (Wavlake format)
         if (!url) {
           const linkElement = item.getElementsByTagName('link')[0];
@@ -588,14 +592,44 @@ export class RSSParser {
             url = linkElement.textContent?.trim() || undefined;
           }
         }
-        
+
         // Method 3: Try media:content tag
         if (!url) {
           const mediaContent = item.getElementsByTagName('media:content')[0];
           if (mediaContent) {
             url = mediaContent.getAttribute('url') || undefined;
+            mimeType = mimeType || mediaContent.getAttribute('type') || undefined;
           }
         }
+
+        // Detect media type (video or audio)
+        const detectMediaType = (mediaUrl: string | undefined, mime: string | undefined): 'audio' | 'video' => {
+          // Check MIME type first
+          if (mime) {
+            if (mime.startsWith('video/')) return 'video';
+            if (mime.startsWith('audio/')) return 'audio';
+            if (mime === 'application/x-mpegURL' || mime === 'application/vnd.apple.mpegurl') return 'video';
+          }
+
+          // Check URL extension
+          if (mediaUrl) {
+            try {
+              const urlPath = new URL(mediaUrl).pathname.toLowerCase();
+              if (urlPath.endsWith('.mp4') || urlPath.endsWith('.webm') || urlPath.endsWith('.mov') || urlPath.endsWith('.m3u8')) {
+                return 'video';
+              }
+              if (urlPath.endsWith('.mp3') || urlPath.endsWith('.m4a') || urlPath.endsWith('.wav') || urlPath.endsWith('.flac') || urlPath.endsWith('.ogg')) {
+                return 'audio';
+              }
+            } catch {
+              // Invalid URL, default to audio
+            }
+          }
+
+          return 'audio'; // Default to audio
+        };
+
+        const mediaType = detectMediaType(url, mimeType);
         
         // Extract track-specific metadata
         const trackSubtitle = item.getElementsByTagName('itunes:subtitle')[0]?.textContent?.trim();
@@ -751,6 +785,8 @@ export class RSSParser {
           keywords: trackKeywords.length > 0 ? trackKeywords : undefined,
           value: trackValue,
           paymentRecipients: trackPaymentRecipients,
+          mediaType: mediaType,
+          mimeType: mimeType,
           // Add GUID fields for Nostr boost tagging
           guid: itemGuid, // Standard item guid
           podcastGuid: itemPodcastGuid, // podcast:guid at item level

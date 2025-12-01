@@ -12,6 +12,8 @@ interface Track {
   image?: string;
   artist?: string;
   album?: string;
+  mediaType?: 'audio' | 'video'; // Type of media (default: audio)
+  mimeType?: string; // MIME type from RSS enclosure
   value?: {
     type: string;
     method: string;
@@ -40,25 +42,29 @@ interface AudioContextType {
   // Current track info
   currentTrack: Track | null;
   currentAlbum: string | null;
-  
+
   // Playback state
   isPlaying: boolean;
   currentTime: number;
   duration: number;
   volume: number;
   isMuted: boolean;
-  
+  isVideo: boolean; // Whether current track is video
+
+  // Video ref for rendering
+  videoRef: React.RefObject<HTMLVideoElement>;
+
   // Playlist
   playlist: Track[];
   currentTrackIndex: number;
   isShuffling: boolean;
   isRepeating: boolean;
-  
+
   // Now Playing Screen
   isNowPlayingOpen: boolean;
   openNowPlaying: () => void;
   closeNowPlaying: () => void;
-  
+
   // Actions
   playTrack: (track: Track, album?: string) => void;
   playAlbum: (tracks: Track[], startIndex?: number, album?: string) => void;
@@ -87,6 +93,7 @@ export const useAudio = () => {
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null!);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [currentAlbum, setCurrentAlbum] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -99,6 +106,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [isNowPlayingOpen, setIsNowPlayingOpen] = useState(false);
+
+  // Determine if current track is video
+  const isVideo = currentTrack?.mediaType === 'video';
+
+  // Get the active media element (audio or video)
+  const getActiveMedia = useCallback((): HTMLAudioElement | HTMLVideoElement | null => {
+    return isVideo ? videoRef.current : audioRef.current;
+  }, [isVideo]);
 
   // Initialize audio element
   useEffect(() => {
@@ -121,23 +136,42 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const playTrack = (track: Track, album?: string) => {
-    if (!audioRef.current) return;
+    const trackIsVideo = track.mediaType === 'video';
 
     setCurrentTrack(track);
     setCurrentAlbum(album || null);
     setPlaylist([track]);
     setCurrentTrackIndex(0);
-    
-    audioRef.current.src = track.url;
-    audioRef.current.load();
-    audioRef.current.play().catch(error => {
-      if (error.name === 'AbortError' || error.message.includes('aborted')) {
-        console.log('Audio loading was cancelled (expected behavior)');
-      } else {
-        console.warn('Audio playback error:', error);
+
+    if (trackIsVideo) {
+      // For video, pause audio and let the video element handle playback
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
       }
-    });
-    setIsPlaying(true);
+      // Video playback is handled by the video element in NowPlayingScreen
+      // It will start playing when src is set via useEffect
+      setIsPlaying(true);
+    } else {
+      // For audio, use the audio element
+      if (!audioRef.current) return;
+
+      // Pause any video that might be playing
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+
+      audioRef.current.src = track.url;
+      audioRef.current.load();
+      audioRef.current.play().catch(error => {
+        if (error.name === 'AbortError' || error.message.includes('aborted')) {
+          console.log('Audio loading was cancelled (expected behavior)');
+        } else {
+          console.warn('Audio playback error:', error);
+        }
+      });
+      setIsPlaying(true);
+    }
 
     // Update Media Session API
     if ('mediaSession' in navigator) {
@@ -153,24 +187,42 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const playAlbum = (tracks: Track[], startIndex = 0, album?: string) => {
-    if (!audioRef.current || tracks.length === 0) return;
+    if (tracks.length === 0) return;
 
     const track = tracks[startIndex];
+    const trackIsVideo = track.mediaType === 'video';
+
     setCurrentTrack(track);
     setCurrentAlbum(album || null);
     setPlaylist(tracks);
     setCurrentTrackIndex(startIndex);
-    
-    audioRef.current.src = track.url;
-    audioRef.current.load();
-    audioRef.current.play().catch(error => {
-      if (error.name === 'AbortError' || error.message.includes('aborted')) {
-        console.log('Audio loading was cancelled (expected behavior)');
-      } else {
-        console.warn('Audio playback error:', error);
+
+    if (trackIsVideo) {
+      // For video, pause audio and let the video element handle playback
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
       }
-    });
-    setIsPlaying(true);
+      setIsPlaying(true);
+    } else {
+      // For audio
+      if (!audioRef.current) return;
+
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+
+      audioRef.current.src = track.url;
+      audioRef.current.load();
+      audioRef.current.play().catch(error => {
+        if (error.name === 'AbortError' || error.message.includes('aborted')) {
+          console.log('Audio loading was cancelled (expected behavior)');
+        } else {
+          console.warn('Audio playback error:', error);
+        }
+      });
+      setIsPlaying(true);
+    }
 
     // Update Media Session API
     if ('mediaSession' in navigator) {
@@ -199,39 +251,42 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const pause = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
+    const media = getActiveMedia();
+    if (media) {
+      media.pause();
       setIsPlaying(false);
     }
-  }, []);
+  }, [getActiveMedia]);
 
   const resume = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(error => {
+    const media = getActiveMedia();
+    if (media) {
+      media.play().catch(error => {
         if (error.name === 'AbortError' || error.message.includes('aborted')) {
-          console.log('Audio loading was cancelled (expected behavior)');
+          console.log('Media loading was cancelled (expected behavior)');
         } else {
-          console.warn('Audio playback error:', error);
+          console.warn('Media playback error:', error);
         }
       });
       setIsPlaying(true);
     }
-  }, []);
+  }, [getActiveMedia]);
 
-  const stop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+  const stop = useCallback(() => {
+    const media = getActiveMedia();
+    if (media) {
+      media.pause();
+      media.currentTime = 0;
       setIsPlaying(false);
       setCurrentTime(0);
     }
-  };
+  }, [getActiveMedia]);
 
   const nextTrack = useCallback(() => {
     if (playlist.length === 0) return;
 
     let nextIndex: number;
-    
+
     if (isShuffling && playlist.length > 1) {
       // Get random track that's not the current one
       do {
@@ -244,33 +299,48 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     }
 
-    const nextTrack = playlist[nextIndex];
-    setCurrentTrack(nextTrack);
+    const track = playlist[nextIndex];
+    const trackIsVideo = track.mediaType === 'video';
+
+    setCurrentTrack(track);
     setCurrentTrackIndex(nextIndex);
-    
-    if (audioRef.current) {
-      audioRef.current.src = nextTrack.url;
-      audioRef.current.load();
-      if (isPlaying) {
-        audioRef.current.play().catch(error => {
-          // Silently handle expected audio loading errors (user navigation, network issues, etc.)
-          if (error.name === 'AbortError' || error.message.includes('aborted')) {
-            console.log('Audio loading was cancelled (expected behavior)');
-          } else {
-            console.warn('Audio playback error:', error);
-          }
-        });
+
+    if (trackIsVideo) {
+      // Stop audio, video element will handle playback
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+      // Video src is set by NowPlayingScreen when currentTrack changes
+    } else {
+      // Stop video if playing
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+
+      if (audioRef.current) {
+        audioRef.current.src = track.url;
+        audioRef.current.load();
+        if (isPlaying) {
+          audioRef.current.play().catch(error => {
+            if (error.name === 'AbortError' || error.message.includes('aborted')) {
+              console.log('Audio loading was cancelled (expected behavior)');
+            } else {
+              console.warn('Audio playback error:', error);
+            }
+          });
+        }
       }
     }
 
     // Update Media Session API
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: nextTrack.title,
-        artist: nextTrack.artist || 'Unknown Artist',
-        album: nextTrack.album || currentAlbum || undefined,
-        artwork: nextTrack.image ? [
-          { src: nextTrack.image, sizes: '512x512', type: 'image/png' }
+        title: track.title,
+        artist: track.artist || 'Unknown Artist',
+        album: track.album || currentAlbum || undefined,
+        artwork: track.image ? [
+          { src: track.image, sizes: '512x512', type: 'image/png' }
         ] : []
       });
     }
@@ -284,32 +354,47 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       prevIndex = playlist.length - 1; // Loop to end
     }
 
-    const prevTrack = playlist[prevIndex];
-    setCurrentTrack(prevTrack);
+    const track = playlist[prevIndex];
+    const trackIsVideo = track.mediaType === 'video';
+
+    setCurrentTrack(track);
     setCurrentTrackIndex(prevIndex);
-    
-    if (audioRef.current) {
-      audioRef.current.src = prevTrack.url;
-      audioRef.current.load();
-      if (isPlaying) {
-        audioRef.current.play().catch(error => {
-          if (error.name === 'AbortError' || error.message.includes('aborted')) {
-            console.log('Audio loading was cancelled (expected behavior)');
-          } else {
-            console.warn('Audio playback error:', error);
-          }
-        });
+
+    if (trackIsVideo) {
+      // Stop audio, video element will handle playback
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    } else {
+      // Stop video if playing
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+
+      if (audioRef.current) {
+        audioRef.current.src = track.url;
+        audioRef.current.load();
+        if (isPlaying) {
+          audioRef.current.play().catch(error => {
+            if (error.name === 'AbortError' || error.message.includes('aborted')) {
+              console.log('Audio loading was cancelled (expected behavior)');
+            } else {
+              console.warn('Audio playback error:', error);
+            }
+          });
+        }
       }
     }
 
     // Update Media Session API
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: prevTrack.title,
-        artist: prevTrack.artist || 'Unknown Artist',
-        album: prevTrack.album || currentAlbum || undefined,
-        artwork: prevTrack.image ? [
-          { src: prevTrack.image, sizes: '512x512', type: 'image/png' }
+        title: track.title,
+        artist: track.artist || 'Unknown Artist',
+        album: track.album || currentAlbum || undefined,
+        artwork: track.image ? [
+          { src: track.image, sizes: '512x512', type: 'image/png' }
         ] : []
       });
     }
@@ -335,27 +420,63 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [isRepeating, nextTrack]);
 
+  // Handle video element events for time sync and track end
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+    const handleDurationChange = () => setDuration(video.duration);
+    const handleLoadStart = () => setCurrentTime(0);
+    const handleEnded = () => {
+      if (isRepeating) {
+        video.currentTime = 0;
+        video.play();
+      } else {
+        nextTrack();
+      }
+    };
+
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('durationchange', handleDurationChange);
+    video.addEventListener('loadstart', handleLoadStart);
+    video.addEventListener('ended', handleEnded);
+
+    return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('durationchange', handleDurationChange);
+      video.removeEventListener('loadstart', handleLoadStart);
+      video.removeEventListener('ended', handleEnded);
+    };
+  }, [isRepeating, nextTrack]);
+
   const seekTo = useCallback((time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
+    const media = getActiveMedia();
+    if (media) {
+      media.currentTime = time;
       setCurrentTime(time);
     }
-  }, []);
+  }, [getActiveMedia]);
 
-  const setVolume = (newVolume: number) => {
+  const setVolume = useCallback((newVolume: number) => {
     const clampedVolume = Math.max(0, Math.min(1, newVolume));
     setVolumeState(clampedVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = clampedVolume;
+    const media = getActiveMedia();
+    if (media) {
+      media.volume = clampedVolume;
     }
-  };
+  }, [getActiveMedia]);
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-    }
-  };
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => {
+      const newMuted = !prev;
+      const media = getActiveMedia();
+      if (media) {
+        media.muted = newMuted;
+      }
+      return newMuted;
+    });
+  }, [getActiveMedia]);
 
   const toggleShuffle = () => {
     setIsShuffling(!isShuffling);
@@ -388,6 +509,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     duration,
     volume,
     isMuted,
+    isVideo,
+    videoRef,
     playlist,
     currentTrackIndex,
     isShuffling,

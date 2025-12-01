@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Hls from 'hls.js';
 import { useAudio } from '@/contexts/AudioContext';
 import { useLightning } from '@/contexts/LightningContext';
 import { useSwipeGestures } from '@/hooks/useSwipeGestures';
@@ -55,6 +56,8 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     duration,
     isShuffling,
     isRepeating,
+    isVideo,
+    videoRef,
     pause,
     resume,
     nextTrack,
@@ -72,6 +75,82 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     threshold: 50,
     velocityThreshold: 0.3
   });
+
+  // Handle video playback when track changes (with HLS.js support)
+  useEffect(() => {
+    if (!isVideo || !currentTrack || !videoRef.current) return;
+
+    const video = videoRef.current;
+    const url = currentTrack.url;
+    let hls: Hls | null = null;
+
+    // Check if this is an HLS stream
+    const isHlsStream = url.includes('.m3u8') ||
+      currentTrack.mimeType === 'application/x-mpegURL' ||
+      currentTrack.mimeType === 'application/vnd.apple.mpegurl';
+
+    if (isHlsStream) {
+      // Check if native HLS is supported (Safari)
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.load();
+        if (isPlaying) {
+          video.play().catch(error => {
+            if (error.name !== 'AbortError') {
+              console.warn('Video playback error:', error);
+            }
+          });
+        }
+      } else if (Hls.isSupported()) {
+        // Use HLS.js for Chrome, Firefox, etc.
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+        });
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (isPlaying) {
+            video.play().catch(error => {
+              if (error.name !== 'AbortError') {
+                console.warn('Video playback error:', error);
+              }
+            });
+          }
+        });
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            console.error('HLS fatal error:', data.type, data.details);
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              hls?.startLoad();
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              hls?.recoverMediaError();
+            }
+          }
+        });
+      } else {
+        console.error('HLS is not supported in this browser');
+      }
+    } else {
+      // Non-HLS video (MP4, WebM, etc.)
+      video.src = url;
+      video.load();
+      if (isPlaying) {
+        video.play().catch(error => {
+          if (error.name !== 'AbortError') {
+            console.warn('Video playback error:', error);
+          }
+        });
+      }
+    }
+
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+      video.pause();
+    };
+  }, [isVideo, currentTrack, videoRef, isPlaying]);
 
   // Performance-optimized color loading with mobile considerations
   const loadColors = useRef(debounce(async (albumTitle: string, track: any) => {
@@ -570,9 +649,17 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-8 pb-4 sm:pb-8 pb-safe-max-2">
-        {/* Album Art - Responsive to window size */}
-        <div className="w-full max-w-xs sm:max-w-sm md:max-w-md aspect-square relative mb-6 sm:mb-8">
-          {currentTrack.image ? (
+        {/* Album Art / Video - Responsive to window size */}
+        <div className={`w-full max-w-xs sm:max-w-sm md:max-w-md relative mb-6 sm:mb-8 ${isVideo ? 'aspect-video' : 'aspect-square'}`}>
+          {isVideo ? (
+            <video
+              ref={videoRef}
+              className="w-full h-full object-contain rounded-lg shadow-2xl bg-black"
+              playsInline
+              controls={false}
+              onClick={() => isPlaying ? pause() : resume()}
+            />
+          ) : currentTrack.image ? (
             <Image
               src={currentTrack.image}
               alt={currentTrack.title}

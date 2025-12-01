@@ -16,6 +16,7 @@ const GlobalNowPlayingBar: React.FC = () => {
     volume,
     isShuffling,
     isRepeating,
+    isVideo,
     isNowPlayingOpen,
     openNowPlaying,
     closeNowPlaying,
@@ -85,7 +86,7 @@ const GlobalNowPlayingBar: React.FC = () => {
               className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
               onClick={openNowPlaying}
             >
-              {currentTrack.image && (
+              {currentTrack.image ? (
                 <div className="w-10 h-10 relative overflow-hidden rounded border border-white/20">
                   <Image
                     src={currentTrack.image}
@@ -94,11 +95,29 @@ const GlobalNowPlayingBar: React.FC = () => {
                     className="object-cover"
                     sizes="40px"
                   />
+                  {isVideo && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                      </svg>
+                    </div>
+                  )}
                 </div>
-              )}
+              ) : isVideo ? (
+                <div className="w-10 h-10 relative overflow-hidden rounded border border-white/20 bg-gray-800 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                  </svg>
+                </div>
+              ) : null}
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-semibold text-white truncate">
-                  {currentTrack.title}
+                <h4 className="text-sm font-semibold text-white truncate flex items-center gap-1">
+                  {isVideo && (
+                    <svg className="w-3 h-3 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                    </svg>
+                  )}
+                  <span className="truncate">{currentTrack.title}</span>
                 </h4>
                 <p className="text-xs text-gray-400 truncate">
                   {currentTrack.artist || 'Unknown Artist'}
@@ -221,11 +240,11 @@ const GlobalNowPlayingBar: React.FC = () => {
         {/* Desktop Layout */}
         <div className="hidden sm:flex items-center gap-4">
           {/* Track Info - Clickable to open full screen */}
-          <div 
+          <div
             className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
             onClick={openNowPlaying}
           >
-            {currentTrack.image && (
+            {currentTrack.image ? (
               <div className="w-12 h-12 relative overflow-hidden rounded border border-white/20">
                 <Image
                   src={currentTrack.image}
@@ -234,11 +253,29 @@ const GlobalNowPlayingBar: React.FC = () => {
                   className="object-cover"
                   sizes="48px"
                 />
+                {isVideo && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                    </svg>
+                  </div>
+                )}
               </div>
-            )}
+            ) : isVideo ? (
+              <div className="w-12 h-12 relative overflow-hidden rounded border border-white/20 bg-gray-800 flex items-center justify-center">
+                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                </svg>
+              </div>
+            ) : null}
             <div className="min-w-0 flex-1">
-              <h4 className="text-sm font-semibold text-white truncate">
-                {currentTrack.title}
+              <h4 className="text-sm font-semibold text-white truncate flex items-center gap-1">
+                {isVideo && (
+                  <svg className="w-3 h-3 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                  </svg>
+                )}
+                <span className="truncate">{currentTrack.title}</span>
               </h4>
               <p className="text-xs text-gray-400 truncate">
                 {currentTrack.artist || 'Unknown Artist'}

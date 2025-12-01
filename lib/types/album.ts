@@ -40,6 +40,8 @@ export interface Track {
   image?: string;
   artist?: string; // Artist name (often added when tracks are played from albums)
   album?: string; // Album name (often added when tracks are played from albums)
+  mediaType?: 'audio' | 'video'; // Type of media (default: audio)
+  mimeType?: string; // MIME type from RSS enclosure
   value?: RSSValue; // Track-level podcast:value data
   paymentRecipients?: PaymentRecipient[]; // Pre-processed track payment recipients
   // Podcast GUIDs for Nostr boost tagging
