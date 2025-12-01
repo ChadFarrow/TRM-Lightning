@@ -110,6 +110,77 @@ const verboseLog = (...args: any[]) => {
   if (isVerbose) console.log(...args);
 };
 
+/**
+ * Fetch duration from an HLS manifest (.m3u8)
+ * Returns duration in "MM:SS" or "H:MM:SS" format, or null if unable to fetch
+ */
+async function fetchHLSDuration(url: string): Promise<string | null> {
+  try {
+    // Fetch the manifest
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'TRM-Lightning/1.0',
+      },
+    });
+
+    if (!response.ok) {
+      console.warn(`⚠️ Failed to fetch HLS manifest: ${response.status}`);
+      return null;
+    }
+
+    const manifestText = await response.text();
+
+    // Check if this is a master playlist (contains #EXT-X-STREAM-INF)
+    if (manifestText.includes('#EXT-X-STREAM-INF')) {
+      // Master playlist - find and fetch a variant playlist
+      const lines = manifestText.split('\n');
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        // Find the first variant playlist URL
+        if (trimmedLine && !trimmedLine.startsWith('#') && (trimmedLine.endsWith('.m3u8') || trimmedLine.includes('.m3u8'))) {
+          // Resolve relative URL
+          let variantUrl = trimmedLine;
+          if (!trimmedLine.startsWith('http')) {
+            const baseUrl = url.substring(0, url.lastIndexOf('/') + 1);
+            variantUrl = baseUrl + trimmedLine;
+          }
+          // Recursively fetch the variant playlist
+          return fetchHLSDuration(variantUrl);
+        }
+      }
+      return null;
+    }
+
+    // Media playlist - sum up all #EXTINF durations
+    let totalDuration = 0;
+    const extinfRegex = /#EXTINF:(\d+(?:\.\d+)?)/g;
+    let match;
+
+    while ((match = extinfRegex.exec(manifestText)) !== null) {
+      totalDuration += parseFloat(match[1]);
+    }
+
+    if (totalDuration === 0) {
+      return null;
+    }
+
+    // Format duration
+    const totalSeconds = Math.round(totalDuration);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+  } catch (error) {
+    console.warn(`⚠️ Error fetching HLS duration for ${url}:`, error);
+    return null;
+  }
+}
+
 export class RSSParser {
   private static readonly logger = createErrorLogger('RSSParser');
   
@@ -802,7 +873,39 @@ export class RSSParser {
           verboseLog(`⚠️ Track missing URL: "${trackTitle}" (${duration})`);
         }
       }
-      
+
+      // Fetch HLS durations for video tracks that have no duration
+      // Only run on server-side to avoid CORS issues
+      if (isServer) {
+        const videoTracksNeedingDuration = tracks.filter(
+          track => track.mediaType === 'video' &&
+                   track.url &&
+                   track.url.includes('.m3u8') &&
+                   (track.duration === '0:00' || !track.duration)
+        );
+
+        if (videoTracksNeedingDuration.length > 0) {
+          devLog(`🎬 Fetching HLS duration for ${videoTracksNeedingDuration.length} video track(s)...`);
+
+          // Fetch durations in parallel
+          const durationPromises = videoTracksNeedingDuration.map(async (track) => {
+            if (!track.url) return null;
+            const hlsDuration = await fetchHLSDuration(track.url);
+            return { track, duration: hlsDuration };
+          });
+
+          const results = await Promise.all(durationPromises);
+
+          // Update track durations
+          for (const result of results) {
+            if (result && result.duration) {
+              result.track.duration = result.duration;
+              devLog(`📹 Set video duration for "${result.track.title}": ${result.duration}`);
+            }
+          }
+        }
+      }
+
       // Extract release date
       const pubDateElement = channel.getElementsByTagName('pubDate')[0] || channel.getElementsByTagName('lastBuildDate')[0];
       const releaseDate = pubDateElement?.textContent?.trim() || new Date().toISOString();
