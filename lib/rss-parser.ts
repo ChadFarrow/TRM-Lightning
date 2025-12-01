@@ -11,9 +11,10 @@ export interface RSSTrack {
   image?: string;
   explicit?: boolean;
   keywords?: string[];
-  startTime?: number; // Add time segment support
+  startTime?: number; // Time segment support
+  endTime?: number;   // Time segment support
+  chaptersUrl?: string; // URL to podcast:chapters JSON file
   value?: RSSValue; // Track-level podcast:value data
-  endTime?: number;   // Add time segment support
   paymentRecipients?: Array<{ address: string; split: number; name?: string; fee?: boolean; type?: string }>; // Pre-processed track payment recipients
   mediaType?: 'audio' | 'video'; // Type of media (default: audio)
   mimeType?: string; // MIME type from RSS enclosure
@@ -834,7 +835,7 @@ export class RSSParser {
           const medium = element.getAttribute('medium');
           const feedGuid = element.getAttribute('feedGuid');
           const feedUrl = element.getAttribute('feedUrl');
-          
+
           if (medium === 'podcast' && feedGuid) {
             itemFeedGuid = feedGuid;
             if (feedUrl) itemFeedUrl = feedUrl;
@@ -843,7 +844,15 @@ export class RSSParser {
             if (feedUrl) itemPublisherUrl = feedUrl;
           }
         });
-        
+
+        // Extract podcast:chapters URL for video chapter data
+        let chaptersUrl: string | undefined;
+        const chaptersElements = Array.from(item.getElementsByTagName('podcast:chapters'));
+        if (chaptersElements.length > 0) {
+          const chaptersElement = chaptersElements[0] as Element;
+          chaptersUrl = chaptersElement.getAttribute('url') || undefined;
+        }
+
         tracks.push({
           title: trackTitle,
           duration: duration,
@@ -858,6 +867,7 @@ export class RSSParser {
           paymentRecipients: trackPaymentRecipients,
           mediaType: mediaType,
           mimeType: mimeType,
+          chaptersUrl: chaptersUrl, // URL to podcast:chapters JSON
           // Add GUID fields for Nostr boost tagging
           guid: itemGuid, // Standard item guid
           podcastGuid: itemPodcastGuid, // podcast:guid at item level

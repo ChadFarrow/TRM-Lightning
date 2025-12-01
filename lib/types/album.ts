@@ -52,6 +52,7 @@ export interface Track {
   publisherGuid?: string; // Publisher GUID
   publisherUrl?: string; // Publisher URL
   imageUrl?: string; // Track artwork URL
+  chaptersUrl?: string; // URL to podcast:chapters JSON file for video chapters
 }
 
 /**

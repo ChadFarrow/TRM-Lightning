@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, Zap } from 'lucide-react';
+import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, Zap, Music, Video } from 'lucide-react';
 import { parseBandName } from '@/lib/band-parser';
 import { useAudio } from '@/contexts/AudioContext';
 import { useLightning } from '@/contexts/LightningContext';
@@ -36,6 +36,18 @@ const ControlsBar = dynamic(() => import('@/components/ControlsBar'), {
   ssr: true
 });
 
+// Dynamic import for VideoSegmentPlayer
+const VideoSegmentPlayer = dynamic(() => import('@/components/VideoSegmentPlayer'), {
+  loading: () => (
+    <div className="bg-black/40 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
+      <div className="aspect-video bg-black/60 animate-pulse flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+      </div>
+    </div>
+  ),
+  ssr: false
+});
+
 import { Album, Track, PaymentRecipient } from '@/lib/types/album';
 
 interface AlbumDetailClientProps {
@@ -61,6 +73,9 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
   const [trackBoostAmount, setTrackBoostAmount] = useState(50);
   const [trackBoostMessage, setTrackBoostMessage] = useState('');
 
+  // Video/Audio view mode toggle for band sets
+  const [viewMode, setViewMode] = useState<'audio' | 'video'>('audio');
+
   // Filter tracks by band if band parameter is present
   const filteredTracks = useMemo(() => {
     if (!album?.tracks || !bandFilter) return album?.tracks || [];
@@ -72,6 +87,14 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
 
   // Check if we're in band-filtered mode
   const isBandFiltered = Boolean(bandFilter && filteredTracks.length > 0);
+
+  // Find the main video track with chapters (for band video segments)
+  const videoTrackWithChapters = useMemo(() => {
+    if (!album?.tracks) return null;
+    return album.tracks.find(track =>
+      track.mediaType === 'video' && track.chaptersUrl
+    ) || null;
+  }, [album?.tracks]);
 
   // Load saved boost preferences from localStorage
   useEffect(() => {
@@ -620,10 +643,10 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
     <div className="min-h-screen text-white relative overflow-hidden">
       <style jsx>{`
         .text-shadow {
-          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.5);
+          text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .text-shadow-sm {
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+          text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
       `}</style>
       {/* Dynamic Background with fallback */}
@@ -636,6 +659,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
             fill
             className="object-cover w-full h-full"
             priority
+            unoptimized={backgroundImage.toLowerCase().endsWith('.gif')}
           />
         ) : (
           /* Fallback to default background */
@@ -721,11 +745,11 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
 
               {/* Album Info */}
               <div className="flex-1 text-center lg:text-left">
-                <div className="mb-4">
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-2 text-white text-shadow">
+                <div className="mb-4 bg-black/70 rounded-2xl p-6 lg:bg-transparent lg:p-0">
+                  <h1 className="text-4xl lg:text-5xl font-bold mb-2 text-white text-shadow drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                     {isBandFiltered ? bandFilter : album.title}
                   </h1>
-                  <p className="text-xl lg:text-2xl text-gray-300 mb-2 text-shadow-sm">
+                  <p className="text-xl lg:text-2xl text-white mb-2 text-shadow-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                     {isBandFiltered ? album.title : album.artist}
                   </p>
 
@@ -734,7 +758,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     <div className="mb-4">
                       <Link
                         href={`/publisher/${getPublisherSlug(album.artist)}`}
-                        className="inline-flex items-center gap-2 text-sm text-white hover:text-yellow-400 transition-colors underline underline-offset-2 text-shadow-sm"
+                        className="inline-flex items-center gap-2 text-sm text-white hover:text-yellow-400 transition-colors underline underline-offset-2 text-shadow-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
                         title={`View all albums by ${album.artist}`}
                       >
                         <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
@@ -743,12 +767,12 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     </div>
                   )}
 
-                  <div className="flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-200 mb-6 text-shadow-sm">
-                    <span className="flex items-center gap-1">
+                  <div className="flex items-center justify-center lg:justify-start gap-4 text-sm text-white font-medium mb-6 text-shadow-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                    <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full">
                       <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
                       {getReleaseYear()}
                     </span>
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full">
                       <span className="w-2 h-2 bg-green-400 rounded-full"></span>
                       {filteredTracks.length} tracks
                     </span>
@@ -825,11 +849,52 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
         {/* Track List */}
         <div className="container mx-auto px-4 pb-8">
           <div className="max-w-4xl mx-auto">
-            <div className={`${DARK_CARD_CLASSES} overflow-hidden`}>
+            {/* Audio/Video Toggle - only shown when band filtered and video with chapters exists */}
+            {isBandFiltered && videoTrackWithChapters && (
+              <div className="flex items-center gap-2 mb-4 bg-black/80 p-2 rounded-xl w-fit">
+                <button
+                  onClick={() => setViewMode('audio')}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                    viewMode === 'audio'
+                      ? 'bg-white text-black shadow-lg'
+                      : 'bg-black/60 text-white border border-white/20 hover:bg-black/80'
+                  }`}
+                >
+                  <Music className="w-4 h-4" />
+                  Audio Tracks
+                </button>
+                <button
+                  onClick={() => setViewMode('video')}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                    viewMode === 'video'
+                      ? 'bg-white text-black shadow-lg'
+                      : 'bg-black/60 text-white border border-white/20 hover:bg-black/80'
+                  }`}
+                >
+                  <Video className="w-4 h-4" />
+                  Watch Video
+                </button>
+              </div>
+            )}
+
+            {/* Video Player - shown when in video mode */}
+            {isBandFiltered && viewMode === 'video' && videoTrackWithChapters && bandFilter && (
+              <VideoSegmentPlayer
+                videoUrl={videoTrackWithChapters.url}
+                chaptersUrl={videoTrackWithChapters.chaptersUrl}
+                bandName={bandFilter}
+                title={album.title}
+                coverArt={filteredTracks[0]?.image || album.coverArt}
+              />
+            )}
+
+            {/* Track List - hidden when viewing video */}
+            {viewMode === 'audio' && (
+            <div className="bg-black/80 border border-white/20 rounded-xl shadow-lg overflow-hidden">
               <div className="p-6 border-b border-white/20">
                 <h2 className="text-2xl font-bold text-white drop-shadow-lg">Tracks</h2>
               </div>
-              
+
               <div className="divide-y divide-white/10">
                 {filteredTracks.map((track, index) => {
                   const isCurrentTrack = currentTrack?.url === track.url;
@@ -926,6 +991,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                 })}
               </div>
             </div>
+            )}
           </div>
         </div>
 
