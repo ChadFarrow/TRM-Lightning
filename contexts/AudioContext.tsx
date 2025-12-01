@@ -79,6 +79,9 @@ interface AudioContextType {
   toggleMute: () => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
+  // Video time sync (called from NowPlayingScreen)
+  setVideoTime: (time: number) => void;
+  setVideoDuration: (duration: number) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -486,6 +489,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsRepeating(!isRepeating);
   };
 
+  // Video time sync functions (called from NowPlayingScreen where video element exists)
+  const setVideoTime = useCallback((time: number) => {
+    setCurrentTime(time);
+  }, []);
+
+  const setVideoDuration = useCallback((newDuration: number) => {
+    if (!isNaN(newDuration) && isFinite(newDuration)) {
+      setDuration(newDuration);
+    }
+  }, []);
+
   // Media Session API handlers - after all functions are declared
   useEffect(() => {
     if ('mediaSession' in navigator) {
@@ -531,6 +545,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     toggleMute,
     toggleShuffle,
     toggleRepeat,
+    setVideoTime,
+    setVideoDuration,
   };
 
   return (

@@ -65,6 +65,8 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     seekTo,
     toggleShuffle,
     toggleRepeat,
+    setVideoTime,
+    setVideoDuration,
   } = useAudio();
 
   // Add swipe gestures for mobile
@@ -91,6 +93,24 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
       hlsRef.current.destroy();
       hlsRef.current = null;
     }
+
+    // Video event handlers for time/duration sync
+    const handleTimeUpdate = () => setVideoTime(video.currentTime);
+    const handleDurationChange = () => {
+      if (!isNaN(video.duration) && isFinite(video.duration)) {
+        setVideoDuration(video.duration);
+      }
+    };
+    const handleLoadedMetadata = () => {
+      if (!isNaN(video.duration) && isFinite(video.duration)) {
+        setVideoDuration(video.duration);
+      }
+    };
+
+    // Add event listeners
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('durationchange', handleDurationChange);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
 
     // Check if this is an HLS stream
     const isHlsStream = url.includes('.m3u8') ||
@@ -125,6 +145,12 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
             }
           });
         });
+        // Get duration from HLS level data
+        hls.on(Hls.Events.LEVEL_LOADED, (event, data) => {
+          if (data.details && data.details.totalduration) {
+            setVideoDuration(data.details.totalduration);
+          }
+        });
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             console.error('HLS fatal error:', data.type, data.details);
@@ -151,12 +177,15 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     }
 
     return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('durationchange', handleDurationChange);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
     };
-  }, [isVideo, currentTrack, videoRef, isOpen]);
+  }, [isVideo, currentTrack, videoRef, isOpen, setVideoTime, setVideoDuration]);
 
   // Handle video pause/resume separately (doesn't reinitialize HLS)
   useEffect(() => {
