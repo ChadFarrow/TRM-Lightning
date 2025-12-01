@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getBoostToNostrService } from '@/lib/boost-to-nostr-service';
 import { type Event } from 'nostr-tools';
 import { nip19, SimplePool, getPublicKey } from 'nostr-tools';
@@ -424,7 +424,7 @@ export default function BoostsPage() {
   const nostrKeysConfigured = isNostrKeysConfigured();
 
   // Helper function to fetch replies for a boost
-  const fetchRepliesForBoost = async (boostId: string, maxRetries: number = 2): Promise<void> => {
+  const fetchRepliesForBoost = useCallback(async (boostId: string, maxRetries: number = 2): Promise<void> => {
     const service = getBoostToNostrService();
     let attempt = replyFetchAttemptsRef.current.get(boostId) || 0;
     
@@ -576,9 +576,9 @@ export default function BoostsPage() {
         ));
       }
     }
-  };
+  }, []);
 
-  const loadBoosts = async (forceRefresh = false) => {
+  const loadBoosts = useCallback(async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -717,14 +717,14 @@ export default function BoostsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchRepliesForBoost]);
 
   useEffect(() => {
     // Only load boosts if feature is enabled
     if (!boostsEnabled) {
       return;
     }
-    
+
     loadBoosts();
 
     // Set up real-time subscription for new boosts
@@ -820,7 +820,7 @@ export default function BoostsPage() {
     } else {
       console.warn('NEXT_PUBLIC_SITE_NOSTR_NSEC not configured, skipping real-time subscription');
     }
-  }, [boostsEnabled]);
+  }, [boostsEnabled, loadBoosts]);
 
   // Check if Lightning/Boosts are enabled - show error message if not
   if (!boostsEnabled) {

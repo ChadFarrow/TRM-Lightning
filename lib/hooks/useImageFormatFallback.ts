@@ -24,23 +24,24 @@ export function useImageFormatFallback(
   const formatsKey = useMemo(() => formatsStr, [formatsStr]);
   
   // Memoize imagePaths to prevent recreation on every render
-  const imagePaths = useMemo(() => 
-    formats.map(format => `/${baseName}.${format}`),
-    [baseName, formatsKey]
-  );
+  const imagePaths = useMemo(() => {
+    const formatsList = formatsKey.split(',');
+    return formatsList.map(format => `/${baseName}.${format}`);
+  }, [baseName, formatsKey]);
   
   // Reset when baseName or formats change
   useEffect(() => {
     setLoadedFormat(null);
     setFailedFormats(new Set());
     setIsLoading(true);
-    
+
     // Check if any image is already cached and loaded
     // This handles the case where images are cached by the browser
     const checkCachedImages = () => {
       let hasLoaded = false;
-      const paths = formats.map(format => `/${baseName}.${format}`);
-      
+      const formatsList = formatsKey.split(',');
+      const paths = formatsList.map(format => `/${baseName}.${format}`);
+
       paths.forEach((path, index) => {
         const img = new Image();
         img.onload = () => {
@@ -56,7 +57,7 @@ export function useImageFormatFallback(
           setFailedFormats(prev => {
             const newSet = new Set(Array.from(prev));
             newSet.add(index);
-            if (newSet.size === formats.length && !hasLoaded) {
+            if (newSet.size === formatsList.length && !hasLoaded) {
               setIsLoading(false);
             }
             return newSet;
@@ -66,7 +67,7 @@ export function useImageFormatFallback(
         img.src = path;
       });
     };
-    
+
     // Small delay to ensure DOM is ready
     const timeoutId = setTimeout(checkCachedImages, 50);
     return () => clearTimeout(timeoutId);

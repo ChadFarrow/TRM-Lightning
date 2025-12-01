@@ -55,11 +55,13 @@ export default function VideoSegmentPlayer({
       return;
     }
 
+    const abortController = new AbortController();
+
     const fetchChapters = async () => {
       try {
         // Use proxy to avoid CORS issues
         const proxyUrl = `/api/proxy-chapters?url=${encodeURIComponent(chaptersUrl)}`;
-        const response = await fetch(proxyUrl);
+        const response = await fetch(proxyUrl, { signal: abortController.signal });
         if (!response.ok) {
           throw new Error(`Failed to fetch chapters: ${response.status}`);
         }
@@ -88,12 +90,19 @@ export default function VideoSegmentPlayer({
           setError(`No chapter found for "${bandName}"`);
         }
       } catch (err) {
-        console.error('Error fetching chapters:', err);
+        // Ignore abort errors
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
         setError(err instanceof Error ? err.message : 'Failed to load chapters');
       }
     };
 
     fetchChapters();
+
+    return () => {
+      abortController.abort();
+    };
   }, [chaptersUrl, bandName]);
 
   // Initialize HLS.js

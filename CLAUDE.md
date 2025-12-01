@@ -1,0 +1,2 @@
+- this is the repo for this https://github.com/ChadFarrow/TRM-Lightning
+- this is deployed here https://vercel.com/chadfs-projects/trm-lightning

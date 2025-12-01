@@ -38,15 +38,20 @@ export default function CachedImage({
   const [useCache, setUseCache] = useState(false);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     // Check if we have a cached version
     const checkCache = async () => {
       try {
         // For now, we'll use a simple approach
         // In a real implementation, you'd call the cache API
         const cachedUrl = `/api/cache/artwork/${encodeURIComponent(src)}`;
-        
+
         // Test if cached version exists
-        const response = await fetch(cachedUrl, { method: 'HEAD' });
+        const response = await fetch(cachedUrl, {
+          method: 'HEAD',
+          signal: abortController.signal
+        });
         if (response.ok) {
           setImageSrc(cachedUrl);
           setUseCache(true);
@@ -55,6 +60,10 @@ export default function CachedImage({
           setUseCache(false);
         }
       } catch (error) {
+        // Ignore abort errors, handle others
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
         // Fallback to original source
         setImageSrc(src);
         setUseCache(false);
@@ -62,6 +71,10 @@ export default function CachedImage({
     };
 
     checkCache();
+
+    return () => {
+      abortController.abort();
+    };
   }, [src, albumId, trackNumber]);
 
   const handleError = () => {

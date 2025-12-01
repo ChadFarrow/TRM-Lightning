@@ -248,7 +248,7 @@ export function BitcoinConnectPayment({
         ...(boostMetadata.album && { album: boostMetadata.album }),
         value_msat_total: amount * 1000,
         sender_name: boostMetadata.senderName || 'Anonymous',
-        uuid: `boost-${Date.now()}-${Math.floor(Math.random() * 1000)}`, // Unique identifier
+        uuid: crypto.randomUUID(), // Unique identifier
         app_version: '1.0.0', // App version
         value_msat: recipients ? Math.floor((amount * 1000) / recipients.length) : amount * 1000, // Individual payment amount
         name: recipientName || 'Recipient' // Recipient name from payment split

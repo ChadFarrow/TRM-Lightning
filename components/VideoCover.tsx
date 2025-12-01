@@ -3,15 +3,31 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
-// Import the GIF to video mapping at runtime
-let gifVideoMapping: Record<string, { webm: string; mp4: string }> = {};
+// Cached mapping data - loaded once and shared across components
+let cachedGifVideoMapping: Record<string, { webm: string; mp4: string }> | null = null;
+let mappingLoadPromise: Promise<Record<string, { webm: string; mp4: string }>> | null = null;
 
-// Load mapping on client side
-if (typeof window !== 'undefined') {
-  fetch('/data/gif-video-mapping.json')
+// Load mapping with deduplication
+function loadGifVideoMapping(): Promise<Record<string, { webm: string; mp4: string }>> {
+  if (cachedGifVideoMapping) {
+    return Promise.resolve(cachedGifVideoMapping);
+  }
+  if (mappingLoadPromise) {
+    return mappingLoadPromise;
+  }
+
+  mappingLoadPromise = fetch('/data/gif-video-mapping.json')
     .then(res => res.json())
-    .then(data => { gifVideoMapping = data; })
-    .catch(() => { /* Mapping not available, will use original GIFs */ });
+    .then(data => {
+      cachedGifVideoMapping = data;
+      return data;
+    })
+    .catch(() => {
+      cachedGifVideoMapping = {};
+      return {};
+    });
+
+  return mappingLoadPromise;
 }
 
 interface VideoCoverProps {
@@ -47,30 +63,25 @@ export default function VideoCover({
 
   // Check if this GIF has a video version
   useEffect(() => {
+    let cancelled = false;
+
     if (src?.toLowerCase().includes('.gif')) {
-      // Check if we have a video version
-      const mapping = gifVideoMapping[src];
-      if (mapping) {
-        setIsVideo(true);
-        setVideoSources(mapping);
-      } else {
-        // Try to load mapping dynamically
-        fetch('/data/gif-video-mapping.json')
-          .then(res => res.json())
-          .then(data => {
-            gifVideoMapping = data;
-            if (data[src]) {
-              setIsVideo(true);
-              setVideoSources(data[src]);
-            }
-          })
-          .catch(() => {
-            setIsVideo(false);
-          });
-      }
+      loadGifVideoMapping().then(mapping => {
+        if (cancelled) return;
+        if (mapping[src]) {
+          setIsVideo(true);
+          setVideoSources(mapping[src]);
+        } else {
+          setIsVideo(false);
+        }
+      });
     } else {
       setIsVideo(false);
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [src]);
 
   const handleVideoLoad = () => {

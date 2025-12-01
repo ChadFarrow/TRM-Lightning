@@ -33,7 +33,7 @@ export function createApiHandler<T>(
 
   return async (req: NextRequest) => {
     const startTime = Date.now();
-    const requestId = Math.random().toString(36).substring(7);
+    const requestId = crypto.randomUUID();
     
     try {
       // Log request

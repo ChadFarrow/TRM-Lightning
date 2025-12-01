@@ -28,18 +28,28 @@ export function useNWC(): UseNWCReturn {
 
   // Check service connection status on mount and periodically
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
     const checkConnectionStatus = () => {
       const serviceConnected = nwcService.isConnected();
-      console.log('🔄 Checking NWC service connection status:', serviceConnected);
-      if (serviceConnected !== isConnected) {
-        setIsConnected(serviceConnected);
+      setIsConnected(prev => {
+        if (prev !== serviceConnected) {
+          return serviceConnected;
+        }
+        return prev;
+      });
+    };
+
+    checkConnectionStatus();
+    // Check less frequently (5 seconds) to reduce overhead
+    intervalId = setInterval(checkConnectionStatus, 5000);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
       }
     };
-    
-    checkConnectionStatus();
-    const interval = setInterval(checkConnectionStatus, 1000);
-    return () => clearInterval(interval);
-  }, [nwcService, isConnected]);
+  }, [nwcService]);
 
   // Load saved connection on mount
   useEffect(() => {

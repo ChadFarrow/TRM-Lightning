@@ -277,6 +277,41 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
     }
   }, [album]);
 
+  const preloadBackgroundImage = useCallback(async (albumData: Album) => {
+    if (!albumData.coverArt) {
+      setBackgroundLoaded(true);
+      return;
+    }
+
+    try {
+      // Check for background override based on album slug
+      let bgImage = albumData.coverArt;
+      try {
+        const overridesResponse = await fetch('/data/background-overrides.json');
+        if (overridesResponse.ok) {
+          const overrides = await overridesResponse.json();
+          if (overrides[albumTitle]) {
+            bgImage = overrides[albumTitle];
+          }
+        }
+      } catch {
+        // Ignore errors loading overrides, use default
+      }
+
+      // Set background immediately for faster perceived loading
+      setBackgroundImage(bgImage);
+      setBackgroundLoaded(true);
+
+      // Preload in background for better caching, but don't block rendering
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.src = bgImage;
+    } catch (error) {
+      setBackgroundImage(null);
+      setBackgroundLoaded(true);
+    }
+  }, [albumTitle]);
+
   const loadAlbum = useCallback(async () => {
     // Prevent duplicate requests
     if (loadingAlbumRef.current) {
@@ -348,7 +383,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
       setIsLoading(false);
       loadingAlbumRef.current = false;
     }
-  }, [albumTitle, loadRelatedAlbums, loadSiteAlbums]);
+  }, [albumTitle, loadRelatedAlbums, loadSiteAlbums, preloadBackgroundImage]);
 
   // Load album data if not provided
   useEffect(() => {
@@ -395,7 +430,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
       preloadAttemptedRef.current = true;
       preloadBackgroundImage(initialAlbum);
     }
-  }, [initialAlbum]);
+  }, [initialAlbum, preloadBackgroundImage]);
 
   // Load saved sender name from localStorage
   useEffect(() => {
@@ -413,42 +448,6 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
       localStorage.setItem('boost-sender-name', senderName.trim());
     }
   }, [senderName]);
-
-  const preloadBackgroundImage = async (albumData: Album) => {
-    if (!albumData.coverArt) {
-      setBackgroundLoaded(true);
-      return;
-    }
-
-    try {
-      // Check for background override based on album slug
-      let bgImage = albumData.coverArt;
-      try {
-        const overridesResponse = await fetch('/data/background-overrides.json');
-        if (overridesResponse.ok) {
-          const overrides = await overridesResponse.json();
-          if (overrides[albumTitle]) {
-            bgImage = overrides[albumTitle];
-          }
-        }
-      } catch {
-        // Ignore errors loading overrides, use default
-      }
-
-      // Set background immediately for faster perceived loading
-      setBackgroundImage(bgImage);
-      setBackgroundLoaded(true);
-
-      // Preload in background for better caching, but don't block rendering
-      const img = new window.Image();
-      img.decoding = 'async';
-      img.src = bgImage;
-    } catch (error) {
-      setBackgroundImage(null);
-      setBackgroundLoaded(true);
-    }
-  };
-
 
   const handlePlayAlbum = () => {
     if (!album) return;

@@ -90,7 +90,7 @@ export function ToastContainer() {
 // Toast utility functions
 export const toast = {
   show: (type: ToastType, message: string, duration = 5000) => {
-    const id = Math.random().toString(36).substr(2, 9);
+    const id = crypto.randomUUID();
     const event = new CustomEvent('toast', {
       detail: { id, type, message, duration },
     });
