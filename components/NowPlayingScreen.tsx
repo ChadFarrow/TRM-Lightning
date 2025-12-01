@@ -76,13 +76,21 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     velocityThreshold: 0.3
   });
 
-  // Handle video playback when track changes (with HLS.js support)
+  // Store HLS instance ref for cleanup
+  const hlsRef = useRef<Hls | null>(null);
+
+  // Handle video source setup when track changes (with HLS.js support)
   useEffect(() => {
-    if (!isVideo || !currentTrack || !videoRef.current) return;
+    if (!isOpen || !isVideo || !currentTrack || !videoRef.current) return;
 
     const video = videoRef.current;
     const url = currentTrack.url;
-    let hls: Hls | null = null;
+
+    // Cleanup previous HLS instance
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
 
     // Check if this is an HLS stream
     const isHlsStream = url.includes('.m3u8') ||
@@ -94,37 +102,36 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = url;
         video.load();
-        if (isPlaying) {
+        // Always auto-play when a new track is selected
+        video.play().catch(error => {
+          if (error.name !== 'AbortError') {
+            console.warn('Video playback error:', error);
+          }
+        });
+      } else if (Hls.isSupported()) {
+        // Use HLS.js for Chrome, Firefox, etc.
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+        });
+        hlsRef.current = hls;
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          // Always auto-play when manifest is ready (user clicked to play this track)
           video.play().catch(error => {
             if (error.name !== 'AbortError') {
               console.warn('Video playback error:', error);
             }
           });
-        }
-      } else if (Hls.isSupported()) {
-        // Use HLS.js for Chrome, Firefox, etc.
-        hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: false,
-        });
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (isPlaying) {
-            video.play().catch(error => {
-              if (error.name !== 'AbortError') {
-                console.warn('Video playback error:', error);
-              }
-            });
-          }
         });
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             console.error('HLS fatal error:', data.type, data.details);
             if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-              hls?.startLoad();
+              hls.startLoad();
             } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-              hls?.recoverMediaError();
+              hls.recoverMediaError();
             }
           }
         });
@@ -135,22 +142,37 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
       // Non-HLS video (MP4, WebM, etc.)
       video.src = url;
       video.load();
-      if (isPlaying) {
-        video.play().catch(error => {
-          if (error.name !== 'AbortError') {
-            console.warn('Video playback error:', error);
-          }
-        });
-      }
+      // Always auto-play when a new track is selected
+      video.play().catch(error => {
+        if (error.name !== 'AbortError') {
+          console.warn('Video playback error:', error);
+        }
+      });
     }
 
     return () => {
-      if (hls) {
-        hls.destroy();
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
       }
-      video.pause();
     };
-  }, [isVideo, currentTrack, videoRef, isPlaying]);
+  }, [isVideo, currentTrack, videoRef, isOpen]);
+
+  // Handle video pause/resume separately (doesn't reinitialize HLS)
+  useEffect(() => {
+    if (!isOpen || !isVideo || !videoRef.current) return;
+    const video = videoRef.current;
+
+    if (isPlaying) {
+      video.play().catch(error => {
+        if (error.name !== 'AbortError') {
+          console.warn('Video resume error:', error);
+        }
+      });
+    } else {
+      video.pause();
+    }
+  }, [isOpen, isVideo, isPlaying, videoRef]);
 
   // Performance-optimized color loading with mobile considerations
   const loadColors = useRef(debounce(async (albumTitle: string, track: any) => {
