@@ -849,9 +849,18 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                         <p className="text-sm text-gray-300 truncate text-shadow-sm">{album.artist}</p>
                       </div>
 
-                      {/* Duration */}
-                      <div className="text-sm text-gray-200 font-mono text-shadow-sm">
-                        {formatDuration(track.duration)}
+                      {/* Duration or Video indicator */}
+                      <div className="text-sm text-gray-200 font-mono text-shadow-sm flex items-center gap-1">
+                        {track.mediaType === 'video' ? (
+                          <>
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                            </svg>
+                            <span className="text-xs">Video</span>
+                          </>
+                        ) : (
+                          formatDuration(track.duration)
+                        )}
                       </div>
 
                       {/* Track Lightning Boost Button */}
