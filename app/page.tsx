@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import VideoCover from '@/components/VideoCover';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAudio } from '@/contexts/AudioContext';
 import { useLightning } from '@/contexts/LightningContext';
@@ -681,7 +682,7 @@ export default function HomePage() {
                         }}
                       >
                         <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded overflow-hidden">
-                          <Image
+                          <VideoCover
                             src={album.coverArt}
                             alt={album.title}
                             fill
@@ -730,7 +731,7 @@ export default function HomePage() {
                         }}
                       >
                         <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded overflow-hidden">
-                          <Image
+                          <VideoCover
                             src={bandSet.coverArt}
                             alt={`${bandSet.bandName} - ${bandSet.showName}`}
                             fill
@@ -921,13 +922,14 @@ export default function HomePage() {
             {/* Header with Album Art */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10" />
-              <Image
-                src={selectedAlbum.coverArt}
-                alt={selectedAlbum.title}
-                width={400}
-                height={200}
-                className="w-full h-32 sm:h-40 object-cover"
-              />
+              <div className="relative w-full h-32 sm:h-40">
+                <VideoCover
+                  src={selectedAlbum.coverArt}
+                  alt={selectedAlbum.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <button
                 onClick={() => {
                   setShowBoostModal(false);

@@ -726,6 +726,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     className="object-cover"
                     priority
                     sizes="(min-width: 1024px) 320px, 256px"
+                    unoptimized={album.coverArt.toLowerCase().endsWith('.gif')}
                   />
                   
                   {/* Play Button Overlay */}
@@ -931,6 +932,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                           fill
                           className="object-cover"
                           sizes="48px"
+                          unoptimized={(track.image || album.coverArt).toLowerCase().endsWith('.gif')}
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Play className="w-4 h-4 text-white" />
@@ -1010,6 +1012,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                   width={400}
                   height={200}
                   className="w-full h-32 sm:h-40 object-cover"
+                  unoptimized={album.coverArt.toLowerCase().endsWith('.gif')}
                 />
                 <button
                   onClick={() => setShowAlbumBoostModal(false)}
@@ -1128,6 +1131,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     width={400}
                     height={200}
                     className="w-full h-32 sm:h-40 object-cover"
+                    unoptimized={(selectedTrack.image || album?.coverArt || '').toLowerCase().endsWith('.gif')}
                   />
                 ) : (
                   <PlaceholderAlbumArtImage

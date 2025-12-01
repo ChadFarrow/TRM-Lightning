@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, memo } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Play, Pause, Video, Volume2, Users } from 'lucide-react';
+import VideoCover from './VideoCover';
 import { DARK_CARD_CLASSES, DARK_BADGE_BG, DARK_BADGE_TEXT } from '@/lib/theme-utils';
 import { generateSlug } from '@/lib/url-utils';
 import type { BandSet } from '@/lib/band-parser';
@@ -27,13 +27,11 @@ function BandSetCard({ bandSet, isPlaying = false, onPlay, className = '' }: Ban
       <Link href={albumUrl} className="block">
         {/* Band Artwork */}
         <div className="relative aspect-square overflow-hidden">
-          <Image
+          <VideoCover
             src={bandSet.coverArt}
             alt={`${bandSet.bandName} - ${bandSet.showName}`}
             fill
-            className={`object-cover transition-opacity duration-300 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
+            className="object-cover"
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
