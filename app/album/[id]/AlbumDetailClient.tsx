@@ -419,16 +419,30 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
       setBackgroundLoaded(true);
       return;
     }
-    
+
     try {
+      // Check for background override based on album slug
+      let bgImage = albumData.coverArt;
+      try {
+        const overridesResponse = await fetch('/data/background-overrides.json');
+        if (overridesResponse.ok) {
+          const overrides = await overridesResponse.json();
+          if (overrides[albumTitle]) {
+            bgImage = overrides[albumTitle];
+          }
+        }
+      } catch {
+        // Ignore errors loading overrides, use default
+      }
+
       // Set background immediately for faster perceived loading
-      setBackgroundImage(albumData.coverArt);
+      setBackgroundImage(bgImage);
       setBackgroundLoaded(true);
-      
+
       // Preload in background for better caching, but don't block rendering
       const img = new window.Image();
       img.decoding = 'async';
-      img.src = albumData.coverArt;
+      img.src = bgImage;
     } catch (error) {
       setBackgroundImage(null);
       setBackgroundLoaded(true);
