@@ -622,7 +622,7 @@ export default function HomePage() {
         />
         
         {/* Main Content */}
-        <div className="container mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-28">
+        <div className="container mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-28 relative z-0">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-4">
               <LoadingSpinner 
@@ -917,12 +917,12 @@ export default function HomePage() {
       
       {/* Boost Modal - Rendered outside of album cards - only show when Lightning is enabled */}
       {isLightningEnabled && showBoostModal && selectedAlbum && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative bg-black/40 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 isolate">
+          <div className="relative bg-gray-900/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
             {/* Header with Album Art */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10" />
-              <div className="relative w-full h-32 sm:h-40">
+              <div className="relative w-full h-32 sm:h-40 overflow-hidden">
                 <VideoCover
                   src={selectedAlbum.coverArt}
                   alt={selectedAlbum.title}
@@ -947,7 +947,7 @@ export default function HomePage() {
               </div>
             </div>
             
-            <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(85vh-8rem)] sm:max-h-[calc(90vh-10rem)]">
+            <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(85vh-8rem)] sm:max-h-[calc(90vh-10rem)] bg-gray-900 relative z-10">
               {/* Amount Input */}
               <div>
                 <label className="text-gray-400 text-sm font-medium">Amount</label>

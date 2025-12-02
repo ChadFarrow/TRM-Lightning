@@ -112,7 +112,7 @@ export default function VideoCover({
   // Render video for GIF sources with available video versions
   if (isVideo && videoSources) {
     return (
-      <div className={`relative ${fill ? 'absolute inset-0' : ''}`}>
+      <div className={`relative z-0 ${fill ? 'absolute inset-0' : ''}`}>
         <video
           ref={videoRef}
           autoPlay
