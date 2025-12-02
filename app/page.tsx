@@ -917,19 +917,17 @@ export default function HomePage() {
       
       {/* Boost Modal - Rendered outside of album cards - only show when Lightning is enabled */}
       {isLightningEnabled && showBoostModal && selectedAlbum && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 isolate">
-          <div className="relative bg-gray-900/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200 isolate">
+          <div className="relative bg-gray-900/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[calc(100vh-2rem)] overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col">
             {/* Header with Album Art */}
-            <div className="relative">
+            <div className="relative shrink-0 h-32 sm:h-40">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10" />
-              <div className="relative w-full h-32 sm:h-40 overflow-hidden">
-                <VideoCover
-                  src={selectedAlbum.coverArt}
-                  alt={selectedAlbum.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <VideoCover
+                src={selectedAlbum.coverArt}
+                alt={selectedAlbum.title}
+                fill
+                className="object-cover"
+              />
               <button
                 onClick={() => {
                   setShowBoostModal(false);
@@ -941,44 +939,44 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <div className="absolute bottom-4 left-6 right-6 z-20">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{selectedAlbum.title}</h3>
-                <p className="text-sm sm:text-base text-gray-200">{selectedAlbum.artist}</p>
+              <div className="absolute bottom-2 left-4 right-4 z-20">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-0.5 line-clamp-2">{selectedAlbum.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-200">{selectedAlbum.artist}</p>
               </div>
             </div>
             
-            <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(85vh-8rem)] sm:max-h-[calc(90vh-10rem)] bg-gray-900 relative z-10">
+            <div className="p-6 space-y-4 overflow-y-auto flex-1 bg-gray-900 relative z-10">
+              {/* Payment Splits Display */}
+              {boostAmount > 0 && (
+                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                  <p className="text-gray-400 text-xs mb-2">Splitting to</p>
+                  <PaymentSplitsDisplay
+                    recipients={extractPaymentRecipients(selectedAlbum)}
+                    totalAmount={boostAmount}
+                    fallbackRecipient={{
+                      address: "03740ea02585ed87b83b2f76317a4562b616bd7b8ec3f925be6596932b2003fc9e",
+                      name: 'Recipient'
+                    }}
+                  />
+                </div>
+              )}
+
               {/* Amount Input */}
               <div>
-                <label className="text-gray-400 text-sm font-medium">Amount</label>
-                <div className="flex items-center gap-3 mt-2">
-                  <input
-                    type="number"
-                    value={boostAmount}
-                    onChange={(e) => {
-                      const newAmount = Math.max(1, parseInt(e.target.value) || 1);
-                      setBoostAmount(newAmount);
-                      localStorage.setItem('boost-amount', newAmount.toString());
-                    }}
-                    className="flex-1 px-4 py-3 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    placeholder="Enter amount"
-                    min="1"
-                  />
-                  <span className="text-gray-400 font-medium">sats</span>
-                </div>
-              </div>
-
-              {/* Payment Splits Display - Use album/channel level value block only */}
-              {boostAmount > 0 && (
-                <PaymentSplitsDisplay
-                  recipients={extractPaymentRecipients(selectedAlbum)}
-                  totalAmount={boostAmount}
-                  fallbackRecipient={{
-                    address: "03740ea02585ed87b83b2f76317a4562b616bd7b8ec3f925be6596932b2003fc9e",
-                    name: 'Recipient'
+                <label className="text-gray-400 text-sm font-medium">Amount (sats)</label>
+                <input
+                  type="number"
+                  value={boostAmount}
+                  onChange={(e) => {
+                    const newAmount = Math.max(1, parseInt(e.target.value) || 1);
+                    setBoostAmount(newAmount);
+                    localStorage.setItem('boost-amount', newAmount.toString());
                   }}
+                  className="w-full mt-2 px-4 py-3 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  placeholder="Enter amount"
+                  min="1"
                 />
-              )}
+              </div>
               
               {/* Sender Name */}
               <div>

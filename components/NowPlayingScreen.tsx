@@ -885,36 +885,10 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
                 </button>
               </div>
               
-              <div className="mb-4">
-                <p className="text-gray-300 text-sm mb-2">
-                  Send sats to support <strong>{currentTrack?.title || 'this song'}</strong> 
-                  {currentTrack?.artist && ` by ${currentTrack.artist}`}
-                </p>
-              </div>
-              
-              {/* Amount Selection */}
-              <div className="mb-6">
-                <p className="text-gray-300 text-xs mb-3 uppercase tracking-wide">Boost Amount</p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    value={boostAmount}
-                    onChange={(e) => {
-                      const newAmount = Math.max(1, parseInt(e.target.value) || 1);
-                      setBoostAmount(newAmount);
-                      localStorage.setItem('boost-amount', newAmount.toString());
-                    }}
-                    className="flex-1 px-3 py-2 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    placeholder="Enter amount in sats"
-                    min="1"
-                  />
-                  <span className="text-gray-400 text-sm">sats</span>
-                </div>
-              </div>
-
               {/* Payment Splits Display */}
               {boostAmount > 0 && (
-                <div className="mb-6">
+                <div className="p-3 mb-4 bg-black/40 border border-white/10 rounded-xl">
+                  <p className="text-gray-400 text-xs mb-2">Splitting to</p>
                   <PaymentSplitsDisplay
                     recipients={getPaymentRecipients()}
                     totalAmount={boostAmount}
@@ -925,6 +899,23 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
                   />
                 </div>
               )}
+
+              {/* Amount Selection */}
+              <div className="mb-6">
+                <p className="text-gray-300 text-xs mb-3 uppercase tracking-wide">Amount (sats)</p>
+                <input
+                  type="number"
+                  value={boostAmount}
+                  onChange={(e) => {
+                    const newAmount = Math.max(1, parseInt(e.target.value) || 1);
+                    setBoostAmount(newAmount);
+                    localStorage.setItem('boost-amount', newAmount.toString());
+                  }}
+                  className="w-full px-3 py-2 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  placeholder="Enter amount"
+                  min="1"
+                />
+              </div>
               
               {/* Sender Name */}
               <div className="mb-6">

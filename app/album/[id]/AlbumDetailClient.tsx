@@ -1014,17 +1014,16 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
 
         {/* Album Boost Modal */}
         {isLightningEnabled && showAlbumBoostModal && album && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative bg-black/40 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="relative bg-gray-900/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[calc(100vh-2rem)] overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col">
               {/* Header with Album Art */}
-              <div className="relative">
+              <div className="relative shrink-0 h-32 sm:h-40">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10" />
                 <Image
                   src={album.coverArt}
                   alt={album.title}
-                  width={400}
-                  height={200}
-                  className="w-full h-32 sm:h-40 object-cover"
+                  fill
+                  className="object-cover"
                   unoptimized={album.coverArt.toLowerCase().endsWith('.gif')}
                 />
                 <button
@@ -1035,44 +1034,44 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                <div className="absolute bottom-4 left-6 right-6 z-20">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{album.title}</h3>
-                  <p className="text-sm sm:text-base text-gray-200">{album.artist}</p>
+                <div className="absolute bottom-2 left-4 right-4 z-20">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-0.5 line-clamp-2">{album.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-200">{album.artist}</p>
                 </div>
               </div>
               
-              <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(85vh-8rem)] sm:max-h-[calc(90vh-10rem)]">
-                {/* Amount Input */}
-                <div>
-                  <label className="text-gray-400 text-sm font-medium">Amount</label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <input
-                      type="number"
-                      value={boostAmount}
-                      onChange={(e) => {
-                        const newAmount = Math.max(1, parseInt(e.target.value) || 1);
-                        setBoostAmount(newAmount);
-                        localStorage.setItem('boost-amount', newAmount.toString());
-                      }}
-                      className="flex-1 px-4 py-3 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      placeholder="Enter amount"
-                      min="1"
-                    />
-                    <span className="text-gray-400 font-medium">sats</span>
-                  </div>
-                </div>
-
+              <div className="p-6 space-y-4 overflow-y-auto flex-1">
                 {/* Payment Splits Display */}
                 {boostAmount > 0 && (
-                  <PaymentSplitsDisplay
-                    recipients={paymentRecipients}
-                    totalAmount={boostAmount}
-                    fallbackRecipient={{
-                      address: getFallbackRecipient().address,
-                      name: 'Recipient'
-                    }}
-                  />
+                  <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                    <p className="text-gray-400 text-xs mb-2">Splitting to</p>
+                    <PaymentSplitsDisplay
+                      recipients={paymentRecipients}
+                      totalAmount={boostAmount}
+                      fallbackRecipient={{
+                        address: getFallbackRecipient().address,
+                        name: 'Recipient'
+                      }}
+                    />
+                  </div>
                 )}
+
+                {/* Amount Input */}
+                <div>
+                  <label className="text-gray-400 text-sm font-medium">Amount (sats)</label>
+                  <input
+                    type="number"
+                    value={boostAmount}
+                    onChange={(e) => {
+                      const newAmount = Math.max(1, parseInt(e.target.value) || 1);
+                      setBoostAmount(newAmount);
+                      localStorage.setItem('boost-amount', newAmount.toString());
+                    }}
+                    className="w-full mt-2 px-4 py-3 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    placeholder="Enter amount"
+                    min="1"
+                  />
+                </div>
                 
                 {/* Sender Name */}
                 <div>
@@ -1132,18 +1131,17 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
 
         {/* Track Boost Modal */}
         {isLightningEnabled && showTrackBoostModal && selectedTrack && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative bg-black/40 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="relative bg-gray-900/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[calc(100vh-2rem)] overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col">
               {/* Header with Track Art */}
-              <div className="relative">
+              <div className="relative shrink-0 h-32 sm:h-40">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10" />
                 {selectedTrack.image || album?.coverArt ? (
                   <Image
                     src={selectedTrack.image || album?.coverArt || ''}
                     alt={selectedTrack.title}
-                    width={400}
-                    height={200}
-                    className="w-full h-32 sm:h-40 object-cover"
+                    fill
+                    className="object-cover"
                     unoptimized={(selectedTrack.image || album?.coverArt || '').toLowerCase().endsWith('.gif')}
                   />
                 ) : (
@@ -1151,7 +1149,7 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     alt={selectedTrack.title}
                     width={400}
                     height={200}
-                    className="w-full h-32 sm:h-40 object-cover"
+                    className="w-full h-full object-cover"
                   />
                 )}
                 <button
@@ -1165,44 +1163,44 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                <div className="absolute bottom-4 left-6 right-6 z-20">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{selectedTrack.title}</h3>
-                  <p className="text-sm sm:text-base text-gray-200">{album?.artist}</p>
+                <div className="absolute bottom-2 left-4 right-4 z-20">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-0.5 line-clamp-2">{selectedTrack.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-200">{album?.artist}</p>
                 </div>
               </div>
               
-              <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(85vh-8rem)] sm:max-h-[calc(90vh-10rem)]">
-                {/* Amount Input */}
-                <div>
-                  <label className="text-gray-400 text-sm font-medium">Amount</label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <input
-                      type="number"
-                      value={trackBoostAmount}
-                      onChange={(e) => {
-                        const newAmount = Math.max(1, parseInt(e.target.value) || 1);
-                        setTrackBoostAmount(newAmount);
-                        localStorage.setItem('boost-amount', newAmount.toString());
-                      }}
-                      className="flex-1 px-4 py-3 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      placeholder="Enter amount"
-                      min="1"
-                    />
-                    <span className="text-gray-400 font-medium">sats</span>
-                  </div>
-                </div>
-
+              <div className="p-6 space-y-4 overflow-y-auto flex-1">
                 {/* Payment Splits Display */}
                 {trackBoostAmount > 0 && (
-                  <PaymentSplitsDisplay
-                    recipients={getTrackPaymentRecipients(selectedTrack)}
-                    totalAmount={trackBoostAmount}
-                    fallbackRecipient={{
-                      address: getFallbackRecipient().address,
-                      name: 'Recipient'
-                    }}
-                  />
+                  <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                    <p className="text-gray-400 text-xs mb-2">Splitting to</p>
+                    <PaymentSplitsDisplay
+                      recipients={getTrackPaymentRecipients(selectedTrack)}
+                      totalAmount={trackBoostAmount}
+                      fallbackRecipient={{
+                        address: getFallbackRecipient().address,
+                        name: 'Recipient'
+                      }}
+                    />
+                  </div>
                 )}
+
+                {/* Amount Input */}
+                <div>
+                  <label className="text-gray-400 text-sm font-medium">Amount (sats)</label>
+                  <input
+                    type="number"
+                    value={trackBoostAmount}
+                    onChange={(e) => {
+                      const newAmount = Math.max(1, parseInt(e.target.value) || 1);
+                      setTrackBoostAmount(newAmount);
+                      localStorage.setItem('boost-amount', newAmount.toString());
+                    }}
+                    className="w-full mt-2 px-4 py-3 bg-black/60 backdrop-blur-md border border-white/20 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-white/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    placeholder="Enter amount"
+                    min="1"
+                  />
+                </div>
                 
                 {/* Sender Name */}
                 <div>
