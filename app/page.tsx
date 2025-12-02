@@ -968,10 +968,10 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Payment Splits Display */}
+              {/* Payment Splits Display - Use album/channel level value block only */}
               {boostAmount > 0 && (
                 <PaymentSplitsDisplay
-                  recipients={extractPaymentRecipients(selectedAlbum, selectedAlbum.tracks?.[0])}
+                  recipients={extractPaymentRecipients(selectedAlbum)}
                   totalAmount={boostAmount}
                   fallbackRecipient={{
                     address: "03740ea02585ed87b83b2f76317a4562b616bd7b8ec3f925be6596932b2003fc9e",
@@ -1014,14 +1014,14 @@ export default function HomePage() {
                 />
               </div>
               
-              {/* Boost Button */}
+              {/* Boost Button - Use album/channel level value block only */}
               <BitcoinConnectPayment
                 amount={boostAmount}
                 description={`Boost for ${selectedAlbum.title} by ${selectedAlbum.artist}`}
                 onSuccess={handleBoostSuccess}
                 onError={handleBoostError}
                 className="w-full !mt-6"
-                recipients={extractPaymentRecipients(selectedAlbum, selectedAlbum.tracks?.[0]) || undefined}
+                recipients={extractPaymentRecipients(selectedAlbum) || undefined}
                 recipient="03740ea02585ed87b83b2f76317a4562b616bd7b8ec3f925be6596932b2003fc9e"
                 enableBoosts={true}
                 boostMetadata={createBoostMetadata({
