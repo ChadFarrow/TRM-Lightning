@@ -13,6 +13,15 @@ export default function AboutPage() {
       <header className="border-b backdrop-blur-sm bg-black/30 pt-safe-plus pt-12" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-4 mb-8">
+            <Link
+              href="/"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label="Back to home"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </Link>
             <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
               <h1 className="text-4xl font-bold">{siteName}</h1>
             </Link>
