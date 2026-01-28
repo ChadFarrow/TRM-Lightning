@@ -60,10 +60,11 @@ export async function fetchPodcasts(options?: {
 
   // Check cache
   if (!forceRefresh && podcastCache && Date.now() - podcastCache.lastUpdated < podcastCache.ttl) {
-    console.log('📻 Returning cached podcasts');
+    console.log('📻 Returning cached podcasts (cache hit)');
     return podcastCache.podcasts;
   }
 
+  const startTime = performance.now();
   console.log(`📻 Fetching ${urls.length} podcast feed(s)...`);
 
   const podcasts: Podcast[] = [];
@@ -71,11 +72,15 @@ export async function fetchPodcasts(options?: {
   // Fetch all feeds in parallel
   const results = await Promise.allSettled(
     urls.map(async (url) => {
+      const feedStart = performance.now();
       try {
         const podcast = await PodcastParser.parsePodcastFeed(url);
+        const feedTime = (performance.now() - feedStart).toFixed(0);
+        console.log(`📻 Parsed "${podcast?.title || url}" in ${feedTime}ms (${podcast?.episodes.length || 0} episodes)`);
         return podcast;
       } catch (error) {
-        console.error(`Error fetching podcast ${url}:`, error);
+        const feedTime = (performance.now() - feedStart).toFixed(0);
+        console.error(`📻 Error fetching podcast ${url} after ${feedTime}ms:`, error);
         return null;
       }
     })
@@ -86,6 +91,9 @@ export async function fetchPodcasts(options?: {
       podcasts.push(result.value);
     }
   }
+
+  const totalTime = (performance.now() - startTime).toFixed(0);
+  console.log(`📻 Total podcast fetch time: ${totalTime}ms`);
 
   // Sort podcasts by last update date (most recent first)
   podcasts.sort((a, b) => {
