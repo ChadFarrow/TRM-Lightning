@@ -83,7 +83,7 @@ export default function PodcastsPage() {
     }
 
     const album = podcastToAlbum(podcast);
-    playAlbumAndOpenNowPlaying(album as unknown as Album);
+    playAlbumAndOpenNowPlaying(album.tracks, 0, album.title);
     toast.success(`Now playing: ${podcast.title}`);
   }, [playAlbumAndOpenNowPlaying]);
 
@@ -94,7 +94,7 @@ export default function PodcastsPage() {
 
     const album = podcastToAlbum(episode.podcast);
     const episodeIndex = episode.podcast.episodes.findIndex(ep => ep.guid === episode.guid);
-    playAlbumAndOpenNowPlaying(album as unknown as Album, episodeIndex >= 0 ? episodeIndex : 0);
+    playAlbumAndOpenNowPlaying(album.tracks, episodeIndex >= 0 ? episodeIndex : 0, album.title);
     toast.success(`Now playing: ${episode.title}`);
   }, [playAlbumAndOpenNowPlaying]);
 
@@ -285,12 +285,18 @@ export default function PodcastsPage() {
 
               <BitcoinConnectPayment
                 amount={boostAmount}
-                recipientAddress={selectedPodcast.paymentRecipients?.[0]?.address || ''}
-                recipientName={selectedPodcast.author}
-                splits={selectedPodcast.paymentRecipients}
-                metadata={{
-                  podcast: selectedPodcast.title,
-                  feedGuid: selectedPodcast.feedGuid,
+                recipient={selectedPodcast.paymentRecipients?.[0]?.address || ''}
+                recipients={selectedPodcast.paymentRecipients?.map(r => ({
+                  address: r.address,
+                  split: r.split,
+                  name: r.name,
+                  fee: r.fee,
+                  type: r.type
+                }))}
+                enableBoosts={true}
+                boostMetadata={{
+                  title: selectedPodcast.title,
+                  podcastFeedGuid: selectedPodcast.feedGuid,
                   senderName: senderName || 'Anonymous',
                   message: boostMessage
                 }}

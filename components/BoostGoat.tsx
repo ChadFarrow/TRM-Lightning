@@ -188,9 +188,10 @@ export default function BoostGoat() {
             isJiggling ? 'animate-jiggle' : ''
           }`}
           style={{
+            '--goat-scale': goatScale,
             transform: `scale(${goatScale})`,
             transformOrigin: 'bottom center'
-          }}
+          } as React.CSSProperties}
         >
           {/* SVG Goat */}
           <svg
@@ -287,13 +288,13 @@ export default function BoostGoat() {
         <div className="absolute inset-0 bg-yellow-400 rounded-full animate-ping opacity-50" />
       )}
 
-      {/* Jiggle animation styles */}
-      <style jsx global>{`
+{/* Jiggle animation - using CSS custom properties */}
+      <style>{`
         @keyframes jiggle {
-          0%, 100% { transform: scale(${goatScale}) rotate(0deg); }
-          25% { transform: scale(${goatScale * 1.1}) rotate(-5deg); }
-          50% { transform: scale(${goatScale * 1.15}) rotate(0deg); }
-          75% { transform: scale(${goatScale * 1.1}) rotate(5deg); }
+          0%, 100% { transform: scale(var(--goat-scale)) rotate(0deg); }
+          25% { transform: scale(calc(var(--goat-scale) * 1.1)) rotate(-5deg); }
+          50% { transform: scale(calc(var(--goat-scale) * 1.15)) rotate(0deg); }
+          75% { transform: scale(calc(var(--goat-scale) * 1.1)) rotate(5deg); }
         }
 
         .animate-jiggle {

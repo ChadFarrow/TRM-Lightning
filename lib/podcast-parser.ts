@@ -250,7 +250,7 @@ export class PodcastParser {
 
       // Extract keywords
       const keywordsEl = channel.getElementsByTagName('itunes:keywords')[0];
-      const keywords = keywordsEl?.textContent?.trim().split(',').map(k => k.trim()).filter(k => k) || [];
+      const keywords = keywordsEl?.textContent?.trim().split(',').map((k: string) => k.trim()).filter((k: string) => k) || [];
 
       // Extract categories
       const categoryElements = channel.getElementsByTagName('itunes:category');
@@ -341,7 +341,7 @@ export class PodcastParser {
         publisherUrl: publisher?.feedUrl,
         lastBuildDate: channel.getElementsByTagName('lastBuildDate')[0]?.textContent?.trim(),
         pubDate: channel.getElementsByTagName('pubDate')[0]?.textContent?.trim(),
-        medium: 'podcast'
+        medium: 'podcast' as const
       };
     }, {
       maxRetries: 3,

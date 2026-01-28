@@ -116,7 +116,7 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
     if (!podcast || podcast.episodes.length === 0) return;
 
     const album = podcastToAlbum(podcast);
-    playAlbumAndOpenNowPlaying(album as unknown as Album);
+    playAlbumAndOpenNowPlaying(album.tracks, 0, album.title);
     toast.success(`Now playing: ${podcast.title}`);
   }, [podcast, playAlbumAndOpenNowPlaying]);
 
@@ -129,7 +129,7 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
 
     const album = podcastToAlbum(podcast);
     const episodeIndex = podcast.episodes.findIndex(ep => ep.guid === episode.guid);
-    playAlbumAndOpenNowPlaying(album as unknown as Album, episodeIndex >= 0 ? episodeIndex : 0);
+    playAlbumAndOpenNowPlaying(album.tracks, episodeIndex >= 0 ? episodeIndex : 0, album.title);
     toast.success(`Now playing: ${episode.title}`);
   }, [podcast, playAlbumAndOpenNowPlaying]);
 
@@ -378,7 +378,7 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
                 <Zap className="w-5 h-5 text-yellow-400" />
                 Value Splits
               </h2>
-              <PaymentSplitsDisplay recipients={podcast.paymentRecipients} />
+              <PaymentSplitsDisplay recipients={podcast.paymentRecipients} totalAmount={0} />
             </div>
           )}
 
@@ -477,12 +477,18 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
 
               <BitcoinConnectPayment
                 amount={boostAmount}
-                recipientAddress={podcast.paymentRecipients?.[0]?.address || ''}
-                recipientName={podcast.author}
-                splits={podcast.paymentRecipients}
-                metadata={{
-                  podcast: podcast.title,
-                  feedGuid: podcast.feedGuid,
+                recipient={podcast.paymentRecipients?.[0]?.address || ''}
+                recipients={podcast.paymentRecipients?.map(r => ({
+                  address: r.address,
+                  split: r.split,
+                  name: r.name,
+                  fee: r.fee,
+                  type: r.type
+                }))}
+                enableBoosts={true}
+                boostMetadata={{
+                  title: podcast.title,
+                  podcastFeedGuid: podcast.feedGuid,
                   senderName: senderName || 'Anonymous',
                   message: boostMessage
                 }}
