@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 // Configuration
-const EXPLOSION_THRESHOLD = 10; // Number of boosts before explosion
+const EXPLOSION_THRESHOLD = 6; // Number of boosts before explosion
 const STORAGE_KEY = 'boost_goat_count';
 const MAX_SCALE = 2.5; // Maximum scale before explosion
 
@@ -159,10 +159,15 @@ export default function BoostGoat() {
     }
   };
 
+  // Test boost function for development
+  const testBoost = () => {
+    window.dispatchEvent(new Event('newBoost'));
+  };
+
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-24 right-4 z-40 pointer-events-none"
+      className="fixed bottom-24 left-4 z-40"
       style={{ width: 100, height: 100 }}
     >
       {/* Particles */}
@@ -287,6 +292,14 @@ export default function BoostGoat() {
       {isExploding && (
         <div className="absolute inset-0 bg-yellow-400 rounded-full animate-ping opacity-50" />
       )}
+
+      {/* Test boost button */}
+      <button
+        onClick={testBoost}
+        className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded shadow-lg pointer-events-auto"
+      >
+        Boost!
+      </button>
 
 {/* Jiggle animation - using CSS custom properties */}
       <style>{`

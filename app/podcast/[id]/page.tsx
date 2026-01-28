@@ -168,7 +168,7 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
 
   // Get background style
   const backgroundStyle = extractedColors
-    ? createAlbumBackground(extractedColors)
+    ? { background: createAlbumBackground(extractedColors) }
     : {};
 
   if (isLoading) {

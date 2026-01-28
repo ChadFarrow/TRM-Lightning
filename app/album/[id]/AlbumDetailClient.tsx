@@ -12,7 +12,6 @@ import { BitcoinConnectPayment } from '@/components/BitcoinConnect';
 import type { RSSValue } from '@/lib/rss-parser';
 import dynamic from 'next/dynamic';
 import confetti from 'canvas-confetti';
-import PerformanceMonitor from '@/components/PerformanceMonitor';
 import { getSiteName, getSiteUrl } from '@/lib/site-config';
 import { PlaceholderAlbumArtImage } from '@/lib/image-helpers';
 import { createBoostMetadata } from '@/lib/boost-metadata-utils';
@@ -1268,9 +1267,6 @@ export default function AlbumDetailClient({ albumTitle, initialAlbum }: AlbumDet
         {/* Bottom spacing for audio player */}
         <div className="h-24" />
       </div>
-      
-      {/* Performance Monitor (development only) */}
-      <PerformanceMonitor />
     </div>
   );
 }

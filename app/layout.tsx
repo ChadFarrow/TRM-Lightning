@@ -8,7 +8,6 @@ import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import ClientErrorBoundary from '@/components/ClientErrorBoundary'
 import { ToastContainer } from '@/components/Toast'
-import PerformanceMonitor from '@/components/PerformanceMonitor'
 import { AudioProvider } from '@/contexts/AudioContext'
 import { BitcoinConnectProvider } from '@/contexts/BitcoinConnectContext'
 import { LightningProvider } from '@/contexts/LightningContext'
@@ -400,7 +399,6 @@ export default function RootLayout({
           </ErrorBoundary>
           <ServiceWorkerRegistration />
           <PWAInstallPrompt />
-          <PerformanceMonitor />
         </ClientErrorBoundary>
       </body>
     </html>
