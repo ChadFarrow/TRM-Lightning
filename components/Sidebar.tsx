@@ -45,8 +45,30 @@ export default function Sidebar({ isOpen, onClose, isLightningEnabled }: Sidebar
           </div>
           
           <div className="mb-4 space-y-1">
-            <Link 
-              href="/about" 
+            <Link
+              href="/"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-neutral-800/80 transition-colors text-neutral-200 hover:text-neutral-100 no-underline"
+              onClick={onClose}
+            >
+              <svg className="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+              <span className="text-sm drop-shadow-sm text-neutral-200">Music</span>
+            </Link>
+
+            <Link
+              href="/podcasts"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-neutral-800/80 transition-colors text-neutral-200 hover:text-neutral-100 no-underline"
+              onClick={onClose}
+            >
+              <svg className="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+              <span className="text-sm drop-shadow-sm text-neutral-200">Podcasts</span>
+            </Link>
+
+            <Link
+              href="/about"
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-neutral-800/80 transition-colors text-neutral-200 hover:text-neutral-100 no-underline"
               onClick={onClose}
             >
@@ -55,7 +77,7 @@ export default function Sidebar({ isOpen, onClose, isLightningEnabled }: Sidebar
               </svg>
               <span className="text-sm drop-shadow-sm text-neutral-200">About & Support</span>
             </Link>
-            
+
             {isLightningEnabled && isNostrKeysConfigured() && (
               <Link
                 href="/boosts"
