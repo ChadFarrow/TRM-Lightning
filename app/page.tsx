@@ -75,14 +75,28 @@ const ControlsBar = dynamic(() => import('@/components/ControlsBar'), {
   ssr: false
 });
 
+const PodcastCard = dynamic(() => import('@/components/PodcastCard'), {
+  loading: () => <div className="bg-white/5 backdrop-blur-sm rounded-xl aspect-square animate-pulse"></div>,
+  ssr: false
+});
+
+const EpisodeCard = dynamic(() => import('@/components/EpisodeCard'), {
+  loading: () => <div className="bg-white/5 backdrop-blur-sm rounded-xl h-24 animate-pulse"></div>,
+  ssr: false
+});
+
 // Import types from the ControlsBar component
 import type { FilterType, ViewType } from '@/components/ControlsBar';
+import type { Podcast, Episode } from '@/lib/types/podcast';
+import { fetchPodcasts, podcastToAlbum } from '@/lib/podcasts-service';
 
 export default function HomePage() {
   const { isLightningEnabled } = useLightning();
   const [isLoading, setIsLoading] = useState(true);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [publishers, setPublishers] = useState<any[]>([]);
+  const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [podcastsLoading, setPodcastsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [totalFeedsCount, setTotalFeedsCount] = useState(0);
@@ -500,6 +514,46 @@ export default function HomePage() {
   const audioTracks = useMemo(() => extractAudioTracks(albums), [albums]);
   const fullShowTracks = useMemo(() => extractFullShowTracks(albums), [albums]);
 
+  // Load podcasts when filter changes to 'podcasts'
+  useEffect(() => {
+    if (activeFilter === 'podcasts' && podcasts.length === 0 && !podcastsLoading) {
+      setPodcastsLoading(true);
+      fetchPodcasts()
+        .then((fetchedPodcasts) => {
+          setPodcasts(fetchedPodcasts);
+        })
+        .catch((err) => {
+          console.error('Error loading podcasts:', err);
+          toast.error('Failed to load podcasts');
+        })
+        .finally(() => {
+          setPodcastsLoading(false);
+        });
+    }
+  }, [activeFilter, podcasts.length, podcastsLoading]);
+
+  // Handle playing a podcast
+  const handlePlayPodcast = useCallback((podcast: Podcast, e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (podcast.episodes.length === 0) {
+      toast.error('This podcast has no episodes');
+      return;
+    }
+
+    const album = podcastToAlbum(podcast);
+    globalPlayAlbum(album.tracks as Track[], 0, podcast.title);
+    toast.success(`Now playing: ${podcast.title}`);
+  }, [globalPlayAlbum]);
+
+  // Handle boost for podcast
+  const handlePodcastBoostClick = useCallback((podcast: Podcast) => {
+    const album = podcastToAlbum(podcast);
+    setSelectedAlbum(album as Album);
+    setShowBoostModal(true);
+  }, []);
+
   // Get the count for the current filter
   const getFilteredCount = () => {
     switch (activeFilter) {
@@ -511,6 +565,8 @@ export default function HomePage() {
         return videoTracks.length;
       case 'audio':
         return audioTracks.length;
+      case 'podcasts':
+        return podcasts.length;
       default:
         return filteredAlbums.length;
     }
@@ -657,7 +713,8 @@ export default function HomePage() {
                   activeFilter === 'full_shows' ? 'Shows' :
                   activeFilter === 'band_sets' ? 'Sets' :
                   activeFilter === 'videos' ? 'Videos' :
-                  activeFilter === 'audio' ? 'Tracks' : 'Items'}
+                  activeFilter === 'audio' ? 'Tracks' :
+                  activeFilter === 'podcasts' ? 'Podcasts' : 'Items'}
                 className="mb-8"
               />
 
@@ -892,6 +949,59 @@ export default function HomePage() {
                             globalPlayAlbum(tracks, trackIndex >= 0 ? trackIndex : 0, albumForTrack.title);
                           }
                         }}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : activeFilter === 'podcasts' ? (
+                // Podcasts - Display podcast cards
+                podcastsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <LoadingSpinner />
+                    <span className="ml-3 text-gray-400">Loading podcasts...</span>
+                  </div>
+                ) : podcasts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400">No podcasts found. Add podcast feeds to get started.</p>
+                  </div>
+                ) : viewType === 'list' ? (
+                  <div className="space-y-2">
+                    {podcasts.map((podcast, index) => (
+                      <div
+                        key={`podcast-list-${index}`}
+                        className={`${DARK_CARD_CLASSES} p-3 sm:p-4 flex items-center gap-3 sm:gap-4 cursor-pointer hover:bg-white/10 transition-colors`}
+                        onClick={() => {
+                          if (podcast.episodes.length > 0) {
+                            const album = podcastToAlbum(podcast);
+                            globalPlayAlbum(album.tracks as Track[], 0, podcast.title);
+                          }
+                        }}
+                      >
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded overflow-hidden">
+                          <VideoCover
+                            src={podcast.coverArt}
+                            alt={podcast.title}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-sm sm:text-base truncate">{podcast.title}</h3>
+                          <p className="text-gray-400 text-xs sm:text-sm truncate">{podcast.author}</p>
+                        </div>
+                        <div className="text-gray-400 text-sm">{podcast.episodes.length} episodes</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                    {podcasts.map((podcast, index) => (
+                      <PodcastCard
+                        key={`podcast-${index}`}
+                        podcast={podcast}
+                        onPlay={handlePlayPodcast}
+                        onBoostClick={handlePodcastBoostClick}
                       />
                     ))}
                   </div>

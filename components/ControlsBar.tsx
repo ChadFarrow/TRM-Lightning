@@ -1,36 +1,37 @@
 'use client';
 
-import { Filter, Grid3X3, List, Shuffle } from 'lucide-react';
+import { Filter, Grid3X3, List, Shuffle, Mic } from 'lucide-react';
 
-export type FilterType = 'full_shows' | 'band_sets' | 'videos' | 'audio' | 'playlist';
+export type FilterType = 'full_shows' | 'band_sets' | 'videos' | 'audio' | 'playlist' | 'podcasts';
 export type ViewType = 'grid' | 'list';
 interface ControlsBarProps {
   // Filter props
   activeFilter: FilterType;
   onFilterChange: (filter: FilterType) => void;
   showFilters?: boolean;
-  filterOptions?: { value: FilterType; label: string }[];
-  
+  filterOptions?: { value: FilterType; label: string; icon?: React.ReactNode }[];
+
   // View props
   viewType: ViewType;
   onViewChange: (view: ViewType) => void;
   showViewToggle?: boolean;
-  
+
   // Shuffle prop
   onShuffle?: () => void;
   showShuffle?: boolean;
-  
+
   // Customization
   className?: string;
   resultCount?: number;
   resultLabel?: string;
 }
 
-const defaultFilters: { value: FilterType; label: string }[] = [
+const defaultFilters: { value: FilterType; label: string; icon?: React.ReactNode }[] = [
   { value: 'full_shows', label: 'Full Shows' },
   { value: 'band_sets', label: 'Band Sets' },
   { value: 'videos', label: 'Videos' },
   { value: 'audio', label: 'Audio' },
+  { value: 'podcasts', label: 'BTS', icon: <Mic className="w-3 h-3" /> },
 ];
 
 export default function ControlsBar({
@@ -59,12 +60,15 @@ export default function ControlsBar({
                 <button
                   key={filter.value}
                   onClick={() => onFilterChange(filter.value)}
-                  className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap transition-all touch-manipulation flex-shrink-0 ${
+                  className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap transition-all touch-manipulation flex-shrink-0 flex items-center gap-1 ${
                     activeFilter === filter.value
-                      ? 'bg-white/30 text-white shadow-sm drop-shadow-sm'
+                      ? filter.value === 'podcasts'
+                        ? 'bg-purple-500/40 text-white shadow-sm drop-shadow-sm'
+                        : 'bg-white/30 text-white shadow-sm drop-shadow-sm'
                       : 'text-gray-200 hover:text-white hover:bg-white/20 active:bg-white/25'
                   }`}
                 >
+                  {filter.icon}
                   {filter.label}
                 </button>
               ))}
@@ -140,12 +144,15 @@ export default function ControlsBar({
                   <button
                     key={filter.value}
                     onClick={() => onFilterChange(filter.value)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all touch-manipulation ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all touch-manipulation flex items-center gap-1.5 ${
                       activeFilter === filter.value
-                        ? 'bg-white/30 text-white shadow-sm drop-shadow-sm'
+                        ? filter.value === 'podcasts'
+                          ? 'bg-purple-500/40 text-white shadow-sm drop-shadow-sm'
+                          : 'bg-white/30 text-white shadow-sm drop-shadow-sm'
                         : 'text-gray-200 hover:text-white hover:bg-white/20 active:bg-white/25'
                     }`}
                   >
+                    {filter.icon}
                     {filter.label}
                   </button>
                 ))}
