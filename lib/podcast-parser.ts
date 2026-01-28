@@ -17,6 +17,18 @@ import { PaymentRecipient } from './types/album';
 const isDev = process.env.NODE_ENV === 'development';
 const isVerbose = process.env.NEXT_PUBLIC_LOG_LEVEL === 'verbose';
 
+/**
+ * Get the base URL for API calls
+ */
+function getApiBaseUrl(): string {
+  // Client-side: use relative URL
+  if (typeof window !== 'undefined') {
+    return '';
+  }
+  // Server-side: use environment variable or default
+  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+}
+
 const devLog = (...args: any[]) => {
   if (isDev) console.log(...args);
 };
@@ -88,18 +100,9 @@ export class PodcastParser {
    */
   static async detectIfPodcast(feedUrl: string): Promise<boolean> {
     try {
-      const isServer = typeof window === 'undefined';
-
-      let response;
-      if (isServer) {
-        response = await fetch(feedUrl, {
-          method: 'GET',
-          headers: { 'User-Agent': 'TRM-Lightning/1.0' },
-        });
-      } else {
-        const proxyUrl = `/api/fetch-rss?url=${encodeURIComponent(feedUrl)}`;
-        response = await fetch(proxyUrl);
-      }
+      const baseUrl = getApiBaseUrl();
+      const proxyUrl = `${baseUrl}/api/fetch-rss?url=${encodeURIComponent(feedUrl)}`;
+      const response = await fetch(proxyUrl);
 
       if (!response.ok) return false;
 
@@ -129,18 +132,12 @@ export class PodcastParser {
     return withRetry(async () => {
       verboseLog('[PodcastParser] Parsing podcast feed', { feedUrl });
 
-      const isServer = typeof window === 'undefined';
+      const baseUrl = getApiBaseUrl();
+      const proxyUrl = `${baseUrl}/api/fetch-rss?url=${encodeURIComponent(feedUrl)}`;
 
       let response;
       try {
-        if (isServer) {
-          response = await fetch(feedUrl, {
-            headers: { 'User-Agent': 'TRM-Lightning/1.0' },
-          });
-        } else {
-          const proxyUrl = `/api/fetch-rss?url=${encodeURIComponent(feedUrl)}`;
-          response = await fetch(proxyUrl);
-        }
+        response = await fetch(proxyUrl);
       } catch (error) {
         throw new AppError(
           'Failed to fetch podcast feed',
@@ -837,17 +834,9 @@ export class PodcastParser {
    */
   static async fetchChapters(chaptersUrl: string): Promise<PodcastChapter[]> {
     try {
-      const isServer = typeof window === 'undefined';
-
-      let response;
-      if (isServer) {
-        response = await fetch(chaptersUrl, {
-          headers: { 'User-Agent': 'TRM-Lightning/1.0' },
-        });
-      } else {
-        const proxyUrl = `/api/proxy-chapters?url=${encodeURIComponent(chaptersUrl)}`;
-        response = await fetch(proxyUrl);
-      }
+      const baseUrl = getApiBaseUrl();
+      const proxyUrl = `${baseUrl}/api/proxy-chapters?url=${encodeURIComponent(chaptersUrl)}`;
+      const response = await fetch(proxyUrl);
 
       if (!response.ok) {
         console.warn(`Failed to fetch chapters: ${response.status}`);
