@@ -13,6 +13,10 @@ import { AudioProvider } from '@/contexts/AudioContext'
 import { BitcoinConnectProvider } from '@/contexts/BitcoinConnectContext'
 import { LightningProvider } from '@/contexts/LightningContext'
 import GlobalNowPlayingBar from '@/components/GlobalNowPlayingBar'
+import dynamic from 'next/dynamic'
+
+// Dynamic import for the BoostGoat component (client-side only)
+const BoostGoat = dynamic(() => import('@/components/BoostGoat'), { ssr: false })
 
 
 
@@ -391,6 +395,7 @@ export default function RootLayout({
                     </div>
                   </div>
                   <GlobalNowPlayingBar />
+                  <BoostGoat />
                   <ToastContainer />
                 </BitcoinConnectProvider>
               </AudioProvider>
