@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, memo } from 'react';
+import Link from 'next/link';
 import { Play, Pause, Clock, Calendar, FileText, Users, Zap, Video, Mic } from 'lucide-react';
 import { useLightning } from '@/contexts/LightningContext';
 import { DARK_CARD_CLASSES, DARK_BADGE_BG, DARK_BADGE_TEXT } from '@/lib/theme-utils';
+import { generateSlug } from '@/lib/url-utils';
 import type { Episode, Podcast } from '@/lib/types/podcast';
 import VideoCover from './VideoCover';
 
@@ -82,9 +84,17 @@ function EpisodeCard({
   // Check if episode has persons/guests
   const hasPersons = episode.persons && episode.persons.length > 0;
 
+  // Generate episode URL - prefer title slug over GUID for cleaner URLs
+  const podcastSlug = podcast ? generateSlug(podcast.title) : '';
+  const episodeSlug = generateSlug(episode.title);
+  const episodeUrl = podcast ? `/podcast/${podcastSlug}/episode/${episodeSlug}` : '#';
+
   if (variant === 'grid') {
     return (
-      <div className={`group relative ${DARK_CARD_CLASSES} overflow-hidden hover:scale-[1.02] active:scale-[0.98] ${className}`}>
+      <Link
+        href={episodeUrl}
+        className={`group relative ${DARK_CARD_CLASSES} overflow-hidden hover:scale-[1.02] active:scale-[0.98] block ${className}`}
+      >
         {/* Episode Artwork */}
         <div className="relative aspect-square overflow-hidden">
           <VideoCover
@@ -196,14 +206,15 @@ function EpisodeCard({
             </p>
           )}
         </div>
-      </div>
+      </Link>
     );
   }
 
   // List variant (default)
   return (
-    <div
-      className={`group relative flex items-start gap-3 sm:gap-4 p-3 sm:p-4 ${DARK_CARD_CLASSES} hover:bg-white/5 transition-colors ${isCurrentEpisode ? 'ring-2 ring-purple-500/50' : ''} ${className}`}
+    <Link
+      href={episodeUrl}
+      className={`group relative flex items-start gap-3 sm:gap-4 p-3 sm:p-4 ${DARK_CARD_CLASSES} hover:bg-white/5 transition-colors ${isCurrentEpisode ? 'ring-2 ring-purple-500/50' : ''} block ${className}`}
     >
       {/* Episode Artwork (smaller for list view) */}
       <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-lg overflow-hidden">
@@ -229,23 +240,23 @@ function EpisodeCard({
         )}
 
         {/* Play button overlay */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onPlay(episode, e);
-          }}
-          className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-          aria-label={isPlaying && isCurrentEpisode ? 'Pause' : 'Play'}
-        >
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onPlay(episode, e);
+            }}
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+            aria-label={isPlaying && isCurrentEpisode ? 'Pause' : 'Play'}
+          >
             {isPlaying && isCurrentEpisode ? (
               <Pause className="w-4 h-4 text-white" />
             ) : (
               <Play className="w-4 h-4 text-white ml-0.5" />
             )}
-          </div>
-        </button>
+          </button>
+        </div>
 
         {/* Episode type badge */}
         {episodeTypeBadge && (
@@ -345,7 +356,7 @@ function EpisodeCard({
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

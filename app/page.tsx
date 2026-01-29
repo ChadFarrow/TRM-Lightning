@@ -544,7 +544,6 @@ export default function HomePage() {
 
     const album = podcastToAlbum(podcast);
     globalPlayAlbum(album.tracks as Track[], 0, podcast.title);
-    toast.success(`Now playing: ${podcast.title}`);
   }, [globalPlayAlbum]);
 
   // Handle boost for podcast

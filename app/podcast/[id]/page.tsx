@@ -117,7 +117,6 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
 
     const album = podcastToAlbum(podcast);
     playAlbumAndOpenNowPlaying(album.tracks, 0, album.title);
-    toast.success(`Now playing: ${podcast.title}`);
   }, [podcast, playAlbumAndOpenNowPlaying]);
 
   // Handle playing a specific episode
@@ -130,7 +129,6 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
     const album = podcastToAlbum(podcast);
     const episodeIndex = podcast.episodes.findIndex(ep => ep.guid === episode.guid);
     playAlbumAndOpenNowPlaying(album.tracks, episodeIndex >= 0 ? episodeIndex : 0, album.title);
-    toast.success(`Now playing: ${episode.title}`);
   }, [podcast, playAlbumAndOpenNowPlaying]);
 
   // Handle boost success

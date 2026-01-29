@@ -13,6 +13,31 @@ interface PersonDisplayProps {
   className?: string;
 }
 
+// Deduplicate persons by name, merging data from duplicates
+function deduplicatePersons(persons: PodcastPerson[]): PodcastPerson[] {
+  const personMap = new Map<string, PodcastPerson>();
+
+  for (const person of persons) {
+    const key = person.name.toLowerCase().trim();
+    const existing = personMap.get(key);
+
+    if (!existing) {
+      personMap.set(key, { ...person });
+    } else {
+      // Merge: prefer entry with more complete data
+      personMap.set(key, {
+        name: existing.name, // keep first name casing
+        role: existing.role || person.role,
+        group: existing.group || person.group,
+        img: existing.img || person.img,
+        href: existing.href || person.href,
+      });
+    }
+  }
+
+  return Array.from(personMap.values());
+}
+
 function PersonDisplay({
   persons,
   variant = 'compact',
@@ -23,8 +48,11 @@ function PersonDisplay({
     return null;
   }
 
+  // Deduplicate persons before processing
+  const uniquePersons = deduplicatePersons(persons);
+
   // Group persons by role/group
-  const groupedPersons = persons.reduce((acc, person) => {
+  const groupedPersons = uniquePersons.reduce((acc, person) => {
     const group = person.group || person.role || 'Contributors';
     if (!acc[group]) {
       acc[group] = [];
@@ -53,8 +81,8 @@ function PersonDisplay({
 
   if (variant === 'compact') {
     // Show avatars in a row with overlap
-    const displayedPersons = persons.slice(0, maxDisplay);
-    const remaining = persons.length - maxDisplay;
+    const displayedPersons = uniquePersons.slice(0, maxDisplay);
+    const remaining = uniquePersons.length - maxDisplay;
 
     return (
       <div className={`flex items-center ${className}`}>
@@ -116,7 +144,7 @@ function PersonDisplay({
             </div>
           )}
         </div>
-        {persons.length <= 2 && (
+        {uniquePersons.length <= 2 && (
           <div className="ml-3 text-sm text-gray-300">
             {displayedPersons.map(p => p.name).join(', ')}
           </div>
@@ -128,7 +156,7 @@ function PersonDisplay({
   if (variant === 'grid') {
     return (
       <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 ${className}`}>
-        {persons.slice(0, maxDisplay).map((person, index) => (
+        {uniquePersons.slice(0, maxDisplay).map((person, index) => (
           <PersonCard key={index} person={person} />
         ))}
       </div>

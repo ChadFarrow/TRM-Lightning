@@ -20,6 +20,7 @@ const GlobalNowPlayingBar: React.FC = () => {
     isNowPlayingOpen,
     openNowPlaying,
     closeNowPlaying,
+    isExternalPlayerFullscreen,
     pause,
     resume,
     nextTrack,
@@ -46,7 +47,8 @@ const GlobalNowPlayingBar: React.FC = () => {
     velocityThreshold: 0.2
   });
 
-  if (!currentTrack) return null;
+  // Don't render if no track or if external fullscreen player is open
+  if (!currentTrack || isExternalPlayerFullscreen) return null;
 
   const formatTime = (seconds: number) => {
     if (isNaN(seconds)) return '0:00';

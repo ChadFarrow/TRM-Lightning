@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 // Configuration
 const EXPLOSION_THRESHOLD = 6; // Number of boosts before explosion
 const STORAGE_KEY = 'boost_goat_count';
-const MAX_SCALE = 2.5; // Maximum scale before explosion
+const MAX_SCALE = 1.8; // Maximum scale before explosion
 
 interface Particle {
   id: number;
@@ -22,11 +22,14 @@ interface Particle {
 export default function BoostGoat() {
   const [boostCount, setBoostCount] = useState(0);
   const [isExploding, setIsExploding] = useState(false);
+  const [showExplosionOverlay, setShowExplosionOverlay] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [frozenParticles, setFrozenParticles] = useState<Particle[]>([]);
   const [isJiggling, setIsJiggling] = useState(false);
   const [showGoat, setShowGoat] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
+  const explosionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load boost count from localStorage
   useEffect(() => {
@@ -47,22 +50,25 @@ export default function BoostGoat() {
   // Calculate goat scale based on boost count
   const goatScale = Math.min(1 + (boostCount / EXPLOSION_THRESHOLD) * (MAX_SCALE - 1), MAX_SCALE);
 
-  // Generate explosion particles
+  // Generate fullscreen explosion particles - pre-positioned across screen
   const createExplosionParticles = useCallback(() => {
-    const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+    const colors = ['#ff0000', '#ff4400', '#ff6600', '#ff2200', '#880000', '#ffaa00', '#ff0044', '#ff8800'];
     const newParticles: Particle[] = [];
 
-    for (let i = 0; i < 50; i++) {
-      const angle = (Math.PI * 2 * i) / 50 + Math.random() * 0.5;
-      const speed = 3 + Math.random() * 6;
+    // Create particles spread across the entire viewport
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
+    const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080;
+
+    for (let i = 0; i < 150; i++) {
+      // Random position across the entire screen
       newParticles.push({
         id: i,
-        x: 0,
-        y: 0,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 2, // Initial upward bias
+        x: Math.random() * screenWidth,
+        y: Math.random() * screenHeight,
+        vx: 0,
+        vy: 0,
         rotation: Math.random() * 360,
-        scale: 0.5 + Math.random() * 0.5,
+        scale: 2 + Math.random() * 3,
         color: colors[Math.floor(Math.random() * colors.length)],
         type: ['confetti', 'star', 'lightning'][Math.floor(Math.random() * 3)] as 'confetti' | 'star' | 'lightning'
       });
@@ -71,51 +77,81 @@ export default function BoostGoat() {
     return newParticles;
   }, []);
 
-  // Animate particles
+  // Animate particles - just the initial burst, then freeze
+  const frameCountRef = useRef(0);
   const animateParticles = useCallback(() => {
+    frameCountRef.current += 1;
+    const frame = frameCountRef.current;
+
+    // Only animate for 40 frames (~0.7 seconds) to spread particles
+    if (frame >= 40) {
+      // Freeze particles in place
+      setParticles(prev => {
+        setFrozenParticles(prev);
+        return [];
+      });
+      return;
+    }
+
     setParticles(prev => {
       const updated = prev.map(p => ({
         ...p,
         x: p.x + p.vx,
         y: p.y + p.vy,
-        vy: p.vy + 0.15, // Gravity
-        rotation: p.rotation + 5,
-        scale: p.scale * 0.98
-      })).filter(p => p.scale > 0.1 && Math.abs(p.y) < 300);
+        vx: p.vx * 0.92,
+        vy: p.vy * 0.92,
+        rotation: p.rotation + 3,
+        scale: p.scale
+      }));
 
-      if (updated.length > 0) {
-        animationRef.current = requestAnimationFrame(animateParticles);
-      } else {
-        // Reset after explosion
-        setIsExploding(false);
-        setShowGoat(true);
-        setBoostCount(0);
-      }
-
+      animationRef.current = requestAnimationFrame(animateParticles);
       return updated;
     });
   }, []);
 
   // Handle explosion
   const triggerExplosion = useCallback(() => {
-    setIsExploding(true);
+    // Clear any existing timeout
+    if (explosionTimeoutRef.current) {
+      clearTimeout(explosionTimeoutRef.current);
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
+    // Create particles and show them immediately (no animation needed)
+    const explosionParticles = createExplosionParticles();
+    setFrozenParticles(explosionParticles);
+    setShowExplosionOverlay(true);
     setShowGoat(false);
-    setParticles(createExplosionParticles());
-    animationRef.current = requestAnimationFrame(animateParticles);
-  }, [createExplosionParticles, animateParticles]);
+    setIsExploding(true);
+
+    // Keep explosion on screen for 3.33 seconds
+    explosionTimeoutRef.current = setTimeout(() => {
+      setShowExplosionOverlay(false);
+      setFrozenParticles([]);
+      setIsExploding(false);
+      setShowGoat(true);
+      setBoostCount(0);
+    }, 3330);
+  }, [createExplosionParticles]);
 
   // Listen for boost events
   useEffect(() => {
     const handleBoost = () => {
-      // Jiggle animation
-      setIsJiggling(true);
-      setTimeout(() => setIsJiggling(false), 300);
+      // Ignore boosts while exploding
+      if (isExploding || showExplosionOverlay) return;
 
       setBoostCount(prev => {
         const newCount = prev + 1;
         if (newCount >= EXPLOSION_THRESHOLD) {
-          setTimeout(triggerExplosion, 500); // Delay explosion for dramatic effect
+          // Trigger explosion immediately - no jiggle, just explode
+          triggerExplosion();
+          return 0;
         }
+        // Only jiggle if not exploding
+        setIsJiggling(true);
+        setTimeout(() => setIsJiggling(false), 300);
         return newCount;
       });
     };
@@ -124,35 +160,35 @@ export default function BoostGoat() {
 
     return () => {
       window.removeEventListener('newBoost', handleBoost);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
     };
-  }, [triggerExplosion]);
+  }, [triggerExplosion, isExploding, showExplosionOverlay]);
 
-  // Render particle based on type
+  // Render hellfire particle based on type - BIGGER particles
   const renderParticle = (particle: Particle) => {
     switch (particle.type) {
       case 'star':
+        // Skull - bigger
         return (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={particle.color}>
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          <svg width="40" height="40" viewBox="0 0 24 24" fill={particle.color}>
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 3.31 1.61 6.24 4.09 8.06V22h2v-1h2v1h2v-1h2v1h2v-1.94C18.39 18.24 20 15.31 20 12c0-5.52-4.48-10-10-10zm-3 12c-.83 0-1.5-.67-1.5-1.5S8.17 11 9 11s1.5.67 1.5 1.5S9.83 14 9 14zm6 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
           </svg>
         );
       case 'lightning':
+        // Flame - bigger
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill={particle.color}>
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          <svg width="35" height="35" viewBox="0 0 24 24" fill={particle.color}>
+            <path d="M12 2c-4 4-6 7-6 11 0 3.31 2.69 6 6 6s6-2.69 6-6c0-4-2-7-6-11zm0 15c-1.66 0-3-1.34-3-3 0-1.56.75-2.84 2-3.67V7c0-.55.45-1 1-1s1 .45 1 1v3.33c1.25.83 2 2.11 2 3.67 0 1.66-1.34 3-3 3z" />
           </svg>
         );
       default:
+        // Ember - bigger
         return (
           <div
             style={{
-              width: 12,
-              height: 12,
-              backgroundColor: particle.color,
-              borderRadius: Math.random() > 0.5 ? '50%' : '2px'
+              width: 30,
+              height: 40,
+              background: `radial-gradient(ellipse at center, ${particle.color} 0%, ${particle.color}88 50%, transparent 80%)`,
+              borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%'
             }}
           />
         );
@@ -165,26 +201,35 @@ export default function BoostGoat() {
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed bottom-24 left-4 z-40"
-      style={{ width: 100, height: 100 }}
-    >
-      {/* Particles */}
-      {particles.map(particle => (
-        <div
-          key={particle.id}
-          className="absolute"
-          style={{
-            left: '50%',
-            top: '50%',
-            transform: `translate(${particle.x}px, ${particle.y}px) rotate(${particle.rotation}deg) scale(${particle.scale})`,
-            opacity: particle.scale
-          }}
-        >
-          {renderParticle(particle)}
+    <>
+      {/* Fullscreen explosion overlay - stays for 5 seconds */}
+      {showExplosionOverlay && (
+        <div className="fixed inset-0 z-[100] pointer-events-none">
+          {/* Dark red overlay */}
+          <div className="absolute inset-0 bg-red-900/70" />
+
+          {/* Particles spread across screen */}
+          {frozenParticles.map(particle => (
+            <div
+              key={particle.id}
+              className="absolute"
+              style={{
+                left: particle.x,
+                top: particle.y,
+                transform: `rotate(${particle.rotation}deg) scale(${particle.scale})`,
+              }}
+            >
+              {renderParticle(particle)}
+            </div>
+          ))}
         </div>
-      ))}
+      )}
+
+      <div
+        ref={containerRef}
+        className="fixed left-8 top-1/2 -translate-y-1/2 z-40"
+        style={{ width: 150, height: 150 }}
+      >
 
       {/* Goat */}
       {showGoat && (
@@ -198,84 +243,128 @@ export default function BoostGoat() {
             transformOrigin: 'bottom center'
           } as React.CSSProperties}
         >
-          {/* SVG Goat */}
+          {/* SVG Scary Goat */}
           <svg
-            width="60"
-            height="60"
+            width="100"
+            height="100"
             viewBox="0 0 100 100"
             className="drop-shadow-lg"
+            style={{ filter: 'drop-shadow(0 0 8px rgba(255, 0, 0, 0.5))' }}
           >
-            {/* Body - gets wider with more boosts */}
+            {/* Defs for glow effects */}
+            <defs>
+              <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ff0000" />
+                <stop offset="100%" stopColor="#8B0000" />
+              </radialGradient>
+              <filter id="hellfire">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            {/* Body - dark and menacing */}
             <ellipse
               cx="50"
               cy="60"
               rx={20 + (boostCount / EXPLOSION_THRESHOLD) * 15}
               ry={18 + (boostCount / EXPLOSION_THRESHOLD) * 8}
-              fill="#E8DCC8"
-              stroke="#8B7355"
+              fill="#1a1a1a"
+              stroke="#440000"
               strokeWidth="2"
             />
 
-            {/* Head */}
-            <ellipse cx="75" cy="40" rx="12" ry="10" fill="#E8DCC8" stroke="#8B7355" strokeWidth="2" />
+            {/* Head - dark */}
+            <ellipse cx="75" cy="40" rx="12" ry="10" fill="#1a1a1a" stroke="#440000" strokeWidth="2" />
 
-            {/* Face details */}
-            <ellipse cx="72" cy="42" rx="8" ry="6" fill="#F5EFE0" />
+            {/* Face details - shadowy */}
+            <ellipse cx="72" cy="42" rx="8" ry="6" fill="#2a2a2a" />
 
-            {/* Eyes */}
-            <ellipse cx="78" cy="38" rx="2" ry="2.5" fill="#333" />
-            <circle cx="78.5" cy="37.5" r="0.8" fill="#fff" />
+            {/* Glowing red eyes */}
+            <ellipse cx="78" cy="38" rx="3" ry="2" fill="url(#eyeGlow)" />
+            <ellipse cx="78" cy="38" rx="1.5" ry="1" fill="#ff0000" style={{ filter: 'blur(1px)' }} />
+            <circle cx="78" cy="38" r="0.8" fill="#ffff00" />
 
-            {/* Nose */}
-            <ellipse cx="82" cy="44" rx="1.5" ry="1" fill="#8B7355" />
+            {/* Second eye (more visible) */}
+            <ellipse cx="70" cy="39" rx="2.5" ry="1.8" fill="url(#eyeGlow)" />
+            <circle cx="70" cy="39" r="0.6" fill="#ffff00" />
 
-            {/* Mouth - smile */}
-            <path d="M 79 46 Q 81 48 83 46" stroke="#8B7355" strokeWidth="1" fill="none" />
+            {/* Angry eyebrows */}
+            <path d="M 66 36 L 72 38" stroke="#440000" strokeWidth="2" strokeLinecap="round" />
+            <path d="M 82 36 L 76 38" stroke="#440000" strokeWidth="2" strokeLinecap="round" />
 
-            {/* Ears */}
-            <ellipse cx="68" cy="32" rx="4" ry="2" fill="#E8DCC8" stroke="#8B7355" strokeWidth="1" transform="rotate(-30 68 32)" />
-            <ellipse cx="80" cy="30" rx="4" ry="2" fill="#E8DCC8" stroke="#8B7355" strokeWidth="1" transform="rotate(30 80 30)" />
+            {/* Snorting nose with smoke */}
+            <ellipse cx="82" cy="44" rx="2" ry="1.5" fill="#330000" />
+            <path d="M 84 42 Q 88 38 86 34" stroke="#666" strokeWidth="1" fill="none" opacity="0.6" />
+            <path d="M 85 43 Q 90 40 87 36" stroke="#666" strokeWidth="1" fill="none" opacity="0.4" />
 
-            {/* Horns */}
-            <path d="M 66 30 Q 60 20 65 15" stroke="#8B7355" strokeWidth="3" fill="none" strokeLinecap="round" />
-            <path d="M 80 28 Q 85 18 82 12" stroke="#8B7355" strokeWidth="3" fill="none" strokeLinecap="round" />
+            {/* Fanged mouth */}
+            <path d="M 76 47 Q 80 52 84 47" stroke="#440000" strokeWidth="1.5" fill="none" />
+            {/* Fangs */}
+            <path d="M 77 47 L 76 51" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M 83 47 L 84 51" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
 
-            {/* Beard */}
-            <path d="M 78 50 Q 80 58 76 62" stroke="#D4C8B8" strokeWidth="3" fill="none" strokeLinecap="round" />
+            {/* Pointed demon ears */}
+            <path d="M 65 32 L 60 22 L 68 30" fill="#1a1a1a" stroke="#440000" strokeWidth="1" />
+            <path d="M 82 30 L 88 20 L 83 28" fill="#1a1a1a" stroke="#440000" strokeWidth="1" />
 
-            {/* Legs */}
-            <rect x="35" y="72" width="5" height="18" rx="2" fill="#E8DCC8" stroke="#8B7355" strokeWidth="1" />
-            <rect x="45" y="72" width="5" height="18" rx="2" fill="#E8DCC8" stroke="#8B7355" strokeWidth="1" />
-            <rect x="55" y="72" width="5" height="18" rx="2" fill="#E8DCC8" stroke="#8B7355" strokeWidth="1" />
-            <rect x="65" y="72" width="5" height="18" rx="2" fill="#E8DCC8" stroke="#8B7355" strokeWidth="1" />
+            {/* Twisted demon horns */}
+            <path d="M 62 28 Q 52 18 48 8 Q 50 12 55 10" stroke="#2a0000" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M 85 26 Q 92 14 96 4 Q 94 10 90 8" stroke="#2a0000" strokeWidth="4" fill="none" strokeLinecap="round" />
+            {/* Horn tips glow */}
+            <circle cx="48" cy="8" r="3" fill="#ff4400" opacity="0.6" />
+            <circle cx="96" cy="4" r="3" fill="#ff4400" opacity="0.6" />
 
-            {/* Hooves */}
-            <rect x="34" y="88" width="7" height="4" rx="1" fill="#5C4033" />
-            <rect x="44" y="88" width="7" height="4" rx="1" fill="#5C4033" />
-            <rect x="54" y="88" width="7" height="4" rx="1" fill="#5C4033" />
-            <rect x="64" y="88" width="7" height="4" rx="1" fill="#5C4033" />
+            {/* Scraggly evil beard */}
+            <path d="M 76 50 Q 74 60 70 66" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M 78 50 Q 80 62 78 68" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M 80 50 Q 84 58 86 64" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
 
-            {/* Tail */}
-            <path d="M 28 55 Q 20 50 22 58 Q 18 55 20 62" stroke="#D4C8B8" strokeWidth="3" fill="none" strokeLinecap="round" />
+            {/* Dark legs */}
+            <rect x="35" y="72" width="5" height="18" rx="2" fill="#1a1a1a" stroke="#440000" strokeWidth="1" />
+            <rect x="45" y="72" width="5" height="18" rx="2" fill="#1a1a1a" stroke="#440000" strokeWidth="1" />
+            <rect x="55" y="72" width="5" height="18" rx="2" fill="#1a1a1a" stroke="#440000" strokeWidth="1" />
+            <rect x="65" y="72" width="5" height="18" rx="2" fill="#1a1a1a" stroke="#440000" strokeWidth="1" />
 
-            {/* Belly blush when getting fat */}
-            {boostCount > 3 && (
+            {/* Cloven hooves with flames */}
+            <path d="M 34 88 L 36 92 L 38 88 L 40 92 L 41 88" fill="#2a0000" />
+            <path d="M 44 88 L 46 92 L 48 88 L 50 92 L 51 88" fill="#2a0000" />
+            <path d="M 54 88 L 56 92 L 58 88 L 60 92 L 61 88" fill="#2a0000" />
+            <path d="M 64 88 L 66 92 L 68 88 L 70 92 L 71 88" fill="#2a0000" />
+
+            {/* Forked tail */}
+            <path d="M 28 55 Q 15 50 10 55 L 6 50 M 10 55 L 6 60" stroke="#1a1a1a" strokeWidth="3" fill="none" strokeLinecap="round" />
+
+            {/* Hellfire belly glow when getting fat */}
+            {boostCount > 2 && (
               <ellipse
                 cx="50"
                 cy="65"
                 rx={10 + (boostCount / EXPLOSION_THRESHOLD) * 5}
                 ry={8 + (boostCount / EXPLOSION_THRESHOLD) * 3}
-                fill="#FFB6C1"
-                opacity={0.3 + (boostCount / EXPLOSION_THRESHOLD) * 0.3}
+                fill="#ff2200"
+                opacity={0.2 + (boostCount / EXPLOSION_THRESHOLD) * 0.4}
               />
             )}
 
-            {/* Sweat drops when about to explode */}
+            {/* Flames coming off when about to explode */}
             {boostCount >= EXPLOSION_THRESHOLD - 2 && (
               <>
-                <path d="M 70 35 Q 68 30 70 28" stroke="#87CEEB" strokeWidth="2" fill="none" />
-                <ellipse cx="70" cy="35" rx="1.5" ry="2" fill="#87CEEB" />
+                <path d="M 45 50 Q 42 40 48 35 Q 44 42 50 45" fill="#ff4400" opacity="0.8" />
+                <path d="M 55 48 Q 58 38 52 32 Q 56 40 50 44" fill="#ff6600" opacity="0.7" />
+                <path d="M 60 52 Q 65 44 58 38 Q 62 46 56 50" fill="#ff2200" opacity="0.6" />
               </>
+            )}
+
+            {/* Pentagram symbol on forehead when maxed */}
+            {boostCount >= EXPLOSION_THRESHOLD - 1 && (
+              <path
+                d="M 74 34 L 76 38 L 72 36 L 76 36 L 72 38 Z"
+                stroke="#ff0000"
+                strokeWidth="0.5"
+                fill="none"
+                opacity="0.8"
+              />
             )}
           </svg>
 
@@ -288,9 +377,9 @@ export default function BoostGoat() {
         </div>
       )}
 
-      {/* Explosion flash */}
+      {/* Hellfire explosion flash */}
       {isExploding && (
-        <div className="absolute inset-0 bg-yellow-400 rounded-full animate-ping opacity-50" />
+        <div className="absolute inset-0 bg-red-600 rounded-full animate-ping opacity-70" style={{ boxShadow: '0 0 40px 20px rgba(255, 0, 0, 0.5)' }} />
       )}
 
       {/* Test boost button */}
@@ -315,5 +404,6 @@ export default function BoostGoat() {
         }
       `}</style>
     </div>
+    </>
   );
 }

@@ -4,9 +4,15 @@
  */
 export function generateSlug(text: string): string {
   if (!text) return '';
-  
+
   return text
     .toLowerCase()
+    // Normalize Unicode lookalikes to ASCII equivalents
+    .replace(/[\u018e\u01dd\u0258\u2203\u2208\u2209]/gi, 'e') // Ǝ ǝ ɘ ∃ ∈ ∉ → e
+    .replace(/[\u0251\u0252\u0430]/gi, 'a') // ɑ ɒ а → a
+    .replace(/[\u03b1]/gi, 'a') // α → a
+    .replace(/[\u0455]/gi, 's') // ѕ → s
+    .replace(/[\u043e\u03bf]/gi, 'o') // о ο → o
     .replace(/[^\w\s-]/g, '')       // Remove punctuation except spaces and hyphens
     .replace(/\s+/g, '-')           // Replace spaces with dashes
     .replace(/-+/g, '-')            // Replace multiple consecutive dashes with single dash

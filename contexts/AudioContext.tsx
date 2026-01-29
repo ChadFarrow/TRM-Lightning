@@ -65,6 +65,10 @@ interface AudioContextType {
   openNowPlaying: () => void;
   closeNowPlaying: () => void;
 
+  // External fullscreen player (e.g., episode detail page)
+  isExternalPlayerFullscreen: boolean;
+  setExternalPlayerFullscreen: (fullscreen: boolean) => void;
+
   // Actions
   playTrack: (track: Track, album?: string) => void;
   playAlbum: (tracks: Track[], startIndex?: number, album?: string) => void;
@@ -109,6 +113,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [isNowPlayingOpen, setIsNowPlayingOpen] = useState(false);
+  const [isExternalPlayerFullscreen, setIsExternalPlayerFullscreen] = useState(false);
 
   // Determine if current track is video
   const isVideo = currentTrack?.mediaType === 'video';
@@ -532,6 +537,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     isNowPlayingOpen,
     openNowPlaying,
     closeNowPlaying,
+    isExternalPlayerFullscreen,
+    setExternalPlayerFullscreen: setIsExternalPlayerFullscreen,
     playTrack,
     playAlbum,
     playAlbumAndOpenNowPlaying,
