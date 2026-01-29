@@ -4827,6 +4827,7 @@
           ],
           "mediaType": "video",
           "mimeType": "application/x-mpegURL",
+          "chaptersUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/spotlightchapters.json",
           "guid": "4d7f3319-019f-4ad9-9fb3-f4611f59c747",
           "feedGuid": "9e3cea98-d04d-5190-88b3-46ee6030d4ea",
           "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/bonus%20art/spotlight%20gate%20logo.png"
@@ -15458,7 +15459,7 @@
       "feedUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/rss/satspotlightsymphony.xml",
       "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/sat%20spotlight%20show%20art.png",
       "feedId": "https-music-behindthesch3m3s-com-wp-content-uploads-sat-skirmish-sproutingsymphonies-rss-satspotlightsymphony-xml",
-      "lastUpdated": "2025-12-01T12:52:02.316Z"
+      "lastUpdated": "2026-01-29T01:39:15.687Z"
     },
     {
       "title": "Polar Embrace",
@@ -15824,6 +15825,7 @@
           ],
           "mediaType": "audio",
           "mimeType": "audio/mpeg",
+          "chaptersUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/polar%20embrace%20boost%20recap%20chapters.json",
           "guid": "ec043f9d-1b46-4637-ab60-6528594a43fc",
           "feedGuid": "2a3a5f81-8325-521b-b168-07ff09b15435",
           "imageUrl": "https://behindthesch3m3s.com/wp-content/uploads/2025/01/polar-embrace-boost-recap.gif"
@@ -16714,6 +16716,7 @@
           ],
           "mediaType": "video",
           "mimeType": "application/x-mpegURL",
+          "chaptersUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/polarembracechapters.json",
           "guid": "94025b6c-40b0-479f-b99d-f1e8f33ced2e",
           "feedGuid": "2a3a5f81-8325-521b-b168-07ff09b15435",
           "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/Polar-Embrace-Feed-art-hires.gif"
@@ -23431,7 +23434,7 @@
       "feedUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/videofeed/feed.xml",
       "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/Polar-Embrace-Feed-art-hires.gif",
       "feedId": "https-music-behindthesch3m3s-com-wp-content-uploads-sat-skirmish-polarembrace-rss-videofeed-feed-xml",
-      "lastUpdated": "2025-12-01T12:52:02.316Z"
+      "lastUpdated": "2026-01-29T01:39:15.687Z"
     },
     {
       "title": "Autumn Rust",
@@ -23581,6 +23584,7 @@
           ],
           "mediaType": "audio",
           "mimeType": "audio/mpeg",
+          "chaptersUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/AUTUMN%20RUST%20BOOST%20RECAP.json",
           "guid": "f0e12a75-5ec9-4abb-81d9-f918eeb474bc",
           "feedGuid": "9e72a512-c678-5621-8fd6-dfc7cd11a846",
           "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/autumn-rust-boost-recap.gif"
@@ -24421,6 +24425,7 @@
           ],
           "mediaType": "video",
           "mimeType": "application/x-mpegURL",
+          "chaptersUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/autumn%20rust%20chapters.json",
           "guid": "f3b0e1ea-3c70-40d5-9657-388d37f5adbd",
           "feedGuid": "9e72a512-c678-5621-8fd6-dfc7cd11a846",
           "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/Autumn-Rust-Feed-Art.gif"
@@ -32415,7 +32420,7 @@
       "feedUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/mp3s/album_feed/feed.xml",
       "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/Autumn-Rust-Feed-Art.gif",
       "feedId": "https-music-behindthesch3m3s-com-wp-content-uploads-sat-skirmish-autumnrust-mp3s-album-feed-feed-xml",
-      "lastUpdated": "2025-12-01T12:52:02.316Z"
+      "lastUpdated": "2026-01-29T01:39:15.687Z"
     },
     {
       "title": "The Satellite Skirmish",
@@ -32593,6 +32598,7 @@
           ],
           "mediaType": "audio",
           "mimeType": "audio/mpeg",
+          "chaptersUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/boost%20recap.json",
           "guid": "f475f98b-8ed4-4b06-8038-53727b9100d6",
           "feedGuid": "b39fc3b2-2742-5944-a800-e87c42a093a3",
           "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sat-skirmish-boost-recap-2.gif"
@@ -33433,6 +33439,7 @@
           ],
           "mediaType": "video",
           "mimeType": "application/x-mpegURL",
+          "chaptersUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sat_skirmish_chapters.json",
           "guid": "d48afc45-e57e-4664-84ab-7d1eaaf2491e",
           "feedGuid": "b39fc3b2-2742-5944-a800-e87c42a093a3",
           "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/the%20satellite%20skirmish%20mku.gif"
@@ -36905,12 +36912,12 @@
       "feedUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/the_satellite_skirmish_album.xml",
       "imageUrl": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/the%20satellite%20skirmish%20mku.gif",
       "feedId": "https-music-behindthesch3m3s-com-wp-content-uploads-sat-skirmish-the-satellite-skirmish-album-xml",
-      "lastUpdated": "2025-12-01T12:52:02.316Z"
+      "lastUpdated": "2026-01-29T01:39:15.687Z"
     }
   ],
   "count": 4,
-  "timestamp": "2025-12-01T12:52:16.053Z",
+  "timestamp": "2026-01-29T01:39:18.317Z",
   "source": "build-time-rss-parse",
   "generated": true,
-  "generatedAt": "2025-12-01T12:52:16.053Z"
+  "generatedAt": "2026-01-29T01:39:18.317Z"
 }

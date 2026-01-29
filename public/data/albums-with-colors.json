@@ -20,12 +20,12 @@
           "title": "Sprouting Symphonies",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/bonus%20art/spotlight%20gate%20logo.png",
           "colors": {
-            "dominant": "rgb(209, 155, 34)",
+            "dominant": "rgb(45, 164, 183)",
             "palette": {
-              "primary": "hsl(41, 72%, 48%)",
-              "secondary": "hsl(41, 52%, 58%)",
-              "accent": "hsl(71, 72%, 48%)",
-              "background": "linear-gradient(135deg, \n    hsl(41, 72%, 8%) 0%, \n    hsl(41, 42%, 0%) 100%)",
+              "primary": "hsl(188, 61%, 45%)",
+              "secondary": "hsl(188, 41%, 55%)",
+              "accent": "hsl(218, 61%, 45%)",
+              "background": "linear-gradient(135deg, \n    hsl(188, 61%, 5%) 0%, \n    hsl(188, 31%, 0%) 100%)",
               "text": "#ffffff"
             },
             "isDark": false
@@ -35,12 +35,12 @@
           "title": "I. Value",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/bonus%20art/0.png",
           "colors": {
-            "dominant": "rgb(110, 103, 93)",
+            "dominant": "rgb(114, 107, 96)",
             "palette": {
-              "primary": "hsl(35, 8%, 40%)",
-              "secondary": "hsl(35, 0%, 50%)",
-              "accent": "hsl(65, 8%, 40%)",
-              "background": "linear-gradient(135deg, \n    hsl(35, 8%, 0%) 0%, \n    hsl(35, 0%, 0%) 100%)",
+              "primary": "hsl(37, 9%, 41%)",
+              "secondary": "hsl(37, 0%, 51%)",
+              "accent": "hsl(67, 9%, 41%)",
+              "background": "linear-gradient(135deg, \n    hsl(37, 9%, 1%) 0%, \n    hsl(37, 0%, 0%) 100%)",
               "text": "#ffffff"
             },
             "isDark": true
@@ -48,66 +48,6 @@
         },
         {
           "title": "The Trusted - Vellichor",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
-          "colors": {
-            "dominant": "rgb(152, 140, 124)",
-            "palette": {
-              "primary": "hsl(34, 12%, 54%)",
-              "secondary": "hsl(34, 0%, 64%)",
-              "accent": "hsl(64, 12%, 54%)",
-              "background": "linear-gradient(135deg, \n    hsl(34, 12%, 14%) 0%, \n    hsl(34, 0%, 0%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "The Trusted - \"We Are The Trusted\"",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
-          "colors": {
-            "dominant": "rgb(154, 143, 126)",
-            "palette": {
-              "primary": "hsl(36, 12%, 55%)",
-              "secondary": "hsl(36, 0%, 65%)",
-              "accent": "hsl(66, 12%, 55%)",
-              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 15%) 0%, \n    hsl(36, 0%, 0%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "The Trusted - Doomsday",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
-          "colors": {
-            "dominant": "rgb(171, 161, 146)",
-            "palette": {
-              "primary": "hsl(36, 13%, 62%)",
-              "secondary": "hsl(36, 0%, 72%)",
-              "accent": "hsl(66, 13%, 62%)",
-              "background": "linear-gradient(135deg, \n    hsl(36, 13%, 22%) 0%, \n    hsl(36, 0%, 2%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "The Trusted - \"Streaming In A Quiet Room\"",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
-          "colors": {
-            "dominant": "rgb(152, 141, 124)",
-            "palette": {
-              "primary": "hsl(36, 12%, 54%)",
-              "secondary": "hsl(36, 0%, 64%)",
-              "accent": "hsl(66, 12%, 54%)",
-              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 14%) 0%, \n    hsl(36, 0%, 0%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "The Trusted - Rebel Song",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
           "colors": {
             "dominant": "rgb(157, 146, 130)",
@@ -122,15 +62,75 @@
           }
         },
         {
+          "title": "The Trusted - \"We Are The Trusted\"",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
+          "colors": {
+            "dominant": "rgb(148, 136, 120)",
+            "palette": {
+              "primary": "hsl(34, 12%, 53%)",
+              "secondary": "hsl(34, 0%, 63%)",
+              "accent": "hsl(64, 12%, 53%)",
+              "background": "linear-gradient(135deg, \n    hsl(34, 12%, 13%) 0%, \n    hsl(34, 0%, 0%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "The Trusted - Doomsday",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
+          "colors": {
+            "dominant": "rgb(157, 146, 130)",
+            "palette": {
+              "primary": "hsl(36, 12%, 56%)",
+              "secondary": "hsl(36, 0%, 66%)",
+              "accent": "hsl(66, 12%, 56%)",
+              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 16%) 0%, \n    hsl(36, 0%, 0%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "The Trusted - \"Streaming In A Quiet Room\"",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
+          "colors": {
+            "dominant": "rgb(156, 144, 128)",
+            "palette": {
+              "primary": "hsl(34, 12%, 56%)",
+              "secondary": "hsl(34, 0%, 66%)",
+              "accent": "hsl(64, 12%, 56%)",
+              "background": "linear-gradient(135deg, \n    hsl(34, 12%, 16%) 0%, \n    hsl(34, 0%, 0%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "The Trusted - Rebel Song",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
+          "colors": {
+            "dominant": "rgb(149, 138, 121)",
+            "palette": {
+              "primary": "hsl(36, 12%, 53%)",
+              "secondary": "hsl(36, 0%, 63%)",
+              "accent": "hsl(66, 12%, 53%)",
+              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 13%) 0%, \n    hsl(36, 0%, 0%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
           "title": "The Trusted - \"Nah We Don't Do Requests\"",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
           "colors": {
-            "dominant": "rgb(159, 148, 132)",
+            "dominant": "rgb(222, 219, 207)",
             "palette": {
-              "primary": "hsl(36, 12%, 57%)",
-              "secondary": "hsl(36, 0%, 67%)",
-              "accent": "hsl(66, 12%, 57%)",
-              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 17%) 0%, \n    hsl(36, 0%, 0%) 100%)",
+              "primary": "hsl(48, 19%, 84%)",
+              "secondary": "hsl(48, 0%, 94%)",
+              "accent": "hsl(78, 19%, 84%)",
+              "background": "linear-gradient(135deg, \n    hsl(48, 19%, 44%) 0%, \n    hsl(48, 0%, 24%) 100%)",
               "text": "#000000"
             },
             "isDark": false
@@ -140,12 +140,12 @@
           "title": "The Trusted - Eli",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
           "colors": {
-            "dominant": "rgb(158, 147, 131)",
+            "dominant": "rgb(149, 137, 121)",
             "palette": {
-              "primary": "hsl(36, 12%, 57%)",
-              "secondary": "hsl(36, 0%, 67%)",
-              "accent": "hsl(66, 12%, 57%)",
-              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 17%) 0%, \n    hsl(36, 0%, 0%) 100%)",
+              "primary": "hsl(34, 12%, 53%)",
+              "secondary": "hsl(34, 0%, 63%)",
+              "accent": "hsl(64, 12%, 53%)",
+              "background": "linear-gradient(135deg, \n    hsl(34, 12%, 13%) 0%, \n    hsl(34, 0%, 0%) 100%)",
               "text": "#000000"
             },
             "isDark": false
@@ -155,12 +155,12 @@
           "title": "The Trusted - \"We Can Feel Your Presence\"",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/THE%20TRUSTED(Torn).png",
           "colors": {
-            "dominant": "rgb(159, 148, 132)",
+            "dominant": "rgb(155, 144, 128)",
             "palette": {
-              "primary": "hsl(36, 12%, 57%)",
-              "secondary": "hsl(36, 0%, 67%)",
-              "accent": "hsl(66, 12%, 57%)",
-              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 17%) 0%, \n    hsl(36, 0%, 0%) 100%)",
+              "primary": "hsl(36, 12%, 55%)",
+              "secondary": "hsl(36, 0%, 65%)",
+              "accent": "hsl(66, 12%, 55%)",
+              "background": "linear-gradient(135deg, \n    hsl(36, 12%, 15%) 0%, \n    hsl(36, 0%, 0%) 100%)",
               "text": "#000000"
             },
             "isDark": false
@@ -173,12 +173,12 @@
       "artist": "The Satellite Skirmish",
       "coverArt": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/Polar-Embrace-Feed-art-hires.gif",
       "colors": {
-        "dominant": "rgb(130, 221, 205)",
+        "dominant": "rgb(101, 220, 196)",
         "palette": {
-          "primary": "hsl(169, 57%, 69%)",
-          "secondary": "hsl(169, 37%, 79%)",
-          "accent": "hsl(199, 57%, 69%)",
-          "background": "linear-gradient(135deg, \n    hsl(169, 57%, 29%) 0%, \n    hsl(169, 27%, 9%) 100%)",
+          "primary": "hsl(168, 63%, 63%)",
+          "secondary": "hsl(168, 43%, 73%)",
+          "accent": "hsl(198, 63%, 63%)",
+          "background": "linear-gradient(135deg, \n    hsl(168, 63%, 23%) 0%, \n    hsl(168, 33%, 3%) 100%)",
           "text": "#000000"
         },
         "isDark": false
@@ -188,67 +188,22 @@
           "title": "Boost Recap",
           "image": "https://behindthesch3m3s.com/wp-content/uploads/2025/01/polar-embrace-boost-recap.gif",
           "colors": {
-            "dominant": "rgb(82, 160, 165)",
+            "dominant": "rgb(83, 64, 183)",
             "palette": {
-              "primary": "hsl(184, 34%, 48%)",
-              "secondary": "hsl(184, 14%, 58%)",
-              "accent": "hsl(214, 34%, 48%)",
-              "background": "linear-gradient(135deg, \n    hsl(184, 34%, 8%) 0%, \n    hsl(184, 4%, 0%) 100%)",
+              "primary": "hsl(250, 48%, 48%)",
+              "secondary": "hsl(250, 28%, 58%)",
+              "accent": "hsl(280, 48%, 48%)",
+              "background": "linear-gradient(135deg, \n    hsl(250, 48%, 8%) 0%, \n    hsl(250, 18%, 0%) 100%)",
               "text": "#ffffff"
             },
-            "isDark": false
+            "isDark": true
           }
         },
         {
           "title": "Empath Eyes - \"Satellite Skirmish, Alright!\"",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
           "colors": {
-            "dominant": "rgb(150, 138, 227)",
-            "palette": {
-              "primary": "hsl(248, 61%, 72%)",
-              "secondary": "hsl(248, 41%, 82%)",
-              "accent": "hsl(278, 61%, 72%)",
-              "background": "linear-gradient(135deg, \n    hsl(248, 61%, 32%) 0%, \n    hsl(248, 31%, 12%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "Empath Eyes - Shadow Man",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
-          "colors": {
-            "dominant": "rgb(194, 193, 245)",
-            "palette": {
-              "primary": "hsl(241, 72%, 86%)",
-              "secondary": "hsl(241, 52%, 96%)",
-              "accent": "hsl(271, 72%, 86%)",
-              "background": "linear-gradient(135deg, \n    hsl(241, 72%, 46%) 0%, \n    hsl(241, 42%, 26%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "Empath Eyes - \"The New Studio Space\"",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
-          "colors": {
-            "dominant": "rgb(163, 141, 238)",
-            "palette": {
-              "primary": "hsl(254, 74%, 74%)",
-              "secondary": "hsl(254, 54%, 84%)",
-              "accent": "hsl(284, 74%, 74%)",
-              "background": "linear-gradient(135deg, \n    hsl(254, 74%, 34%) 0%, \n    hsl(254, 44%, 14%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "Empath Eyes - Panacea",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
-          "colors": {
-            "dominant": "rgb(157, 133, 236)",
+            "dominant": "rgb(157, 132, 236)",
             "palette": {
               "primary": "hsl(254, 73%, 72%)",
               "secondary": "hsl(254, 53%, 82%)",
@@ -260,37 +215,7 @@
           }
         },
         {
-          "title": "Empath Eyes - \"This Next Song I First Heard In A Video Game\"",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
-          "colors": {
-            "dominant": "rgb(153, 139, 230)",
-            "palette": {
-              "primary": "hsl(249, 65%, 72%)",
-              "secondary": "hsl(249, 45%, 82%)",
-              "accent": "hsl(279, 65%, 72%)",
-              "background": "linear-gradient(135deg, \n    hsl(249, 65%, 32%) 0%, \n    hsl(249, 35%, 12%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "Empath Eyes - What I Got",
-          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
-          "colors": {
-            "dominant": "rgb(157, 140, 233)",
-            "palette": {
-              "primary": "hsl(251, 68%, 73%)",
-              "secondary": "hsl(251, 48%, 83%)",
-              "accent": "hsl(281, 68%, 73%)",
-              "background": "linear-gradient(135deg, \n    hsl(251, 68%, 33%) 0%, \n    hsl(251, 38%, 13%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "Empath Eyes - \"That Being Said\"",
+          "title": "Empath Eyes - Shadow Man",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
           "colors": {
             "dominant": "rgb(151, 139, 228)",
@@ -305,15 +230,90 @@
           }
         },
         {
+          "title": "Empath Eyes - \"The New Studio Space\"",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
+          "colors": {
+            "dominant": "rgb(145, 132, 225)",
+            "palette": {
+              "primary": "hsl(248, 61%, 70%)",
+              "secondary": "hsl(248, 41%, 80%)",
+              "accent": "hsl(278, 61%, 70%)",
+              "background": "linear-gradient(135deg, \n    hsl(248, 61%, 30%) 0%, \n    hsl(248, 31%, 10%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "Empath Eyes - Panacea",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
+          "colors": {
+            "dominant": "rgb(157, 131, 236)",
+            "palette": {
+              "primary": "hsl(255, 73%, 72%)",
+              "secondary": "hsl(255, 53%, 82%)",
+              "accent": "hsl(285, 73%, 72%)",
+              "background": "linear-gradient(135deg, \n    hsl(255, 73%, 32%) 0%, \n    hsl(255, 43%, 12%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "Empath Eyes - \"This Next Song I First Heard In A Video Game\"",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
+          "colors": {
+            "dominant": "rgb(150, 138, 227)",
+            "palette": {
+              "primary": "hsl(248, 61%, 72%)",
+              "secondary": "hsl(248, 41%, 82%)",
+              "accent": "hsl(278, 61%, 72%)",
+              "background": "linear-gradient(135deg, \n    hsl(248, 61%, 32%) 0%, \n    hsl(248, 31%, 12%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "Empath Eyes - What I Got",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
+          "colors": {
+            "dominant": "rgb(152, 140, 228)",
+            "palette": {
+              "primary": "hsl(248, 62%, 72%)",
+              "secondary": "hsl(248, 42%, 82%)",
+              "accent": "hsl(278, 62%, 72%)",
+              "background": "linear-gradient(135deg, \n    hsl(248, 62%, 32%) 0%, \n    hsl(248, 32%, 12%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "Empath Eyes - \"That Being Said\"",
+          "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
+          "colors": {
+            "dominant": "rgb(196, 177, 248)",
+            "palette": {
+              "primary": "hsl(256, 84%, 83%)",
+              "secondary": "hsl(256, 64%, 93%)",
+              "accent": "hsl(286, 84%, 83%)",
+              "background": "linear-gradient(135deg, \n    hsl(256, 84%, 43%) 0%, \n    hsl(256, 54%, 23%) 100%)",
+              "text": "#000000"
+            },
+            "isDark": false
+          }
+        },
+        {
           "title": "Empath Eyes - Scenic Route",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/bands/empath%20eyes%20done.png",
           "colors": {
-            "dominant": "rgb(141, 132, 221)",
+            "dominant": "rgb(152, 140, 228)",
             "palette": {
-              "primary": "hsl(246, 57%, 69%)",
-              "secondary": "hsl(246, 37%, 79%)",
-              "accent": "hsl(276, 57%, 69%)",
-              "background": "linear-gradient(135deg, \n    hsl(246, 57%, 29%) 0%, \n    hsl(246, 27%, 9%) 100%)",
+              "primary": "hsl(248, 62%, 72%)",
+              "secondary": "hsl(248, 42%, 82%)",
+              "accent": "hsl(278, 62%, 72%)",
+              "background": "linear-gradient(135deg, \n    hsl(248, 62%, 32%) 0%, \n    hsl(248, 32%, 12%) 100%)",
               "text": "#000000"
             },
             "isDark": false
@@ -326,12 +326,12 @@
       "artist": "The Satellite Skirmish",
       "coverArt": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/Autumn-Rust-Feed-Art.gif",
       "colors": {
-        "dominant": "rgb(195, 57, 104)",
+        "dominant": "rgb(201, 49, 117)",
         "palette": {
-          "primary": "hsl(340, 55%, 49%)",
-          "secondary": "hsl(340, 35%, 59%)",
-          "accent": "hsl(10, 55%, 49%)",
-          "background": "linear-gradient(135deg, \n    hsl(340, 55%, 9%) 0%, \n    hsl(340, 25%, 0%) 100%)",
+          "primary": "hsl(333, 61%, 49%)",
+          "secondary": "hsl(333, 41%, 59%)",
+          "accent": "hsl(3, 61%, 49%)",
+          "background": "linear-gradient(135deg, \n    hsl(333, 61%, 9%) 0%, \n    hsl(333, 31%, 0%) 100%)",
           "text": "#ffffff"
         },
         "isDark": true
@@ -341,12 +341,12 @@
           "title": "Autumn Rust, Boost Recap",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/autumn-rust-boost-recap.gif",
           "colors": {
-            "dominant": "rgb(190, 120, 46)",
+            "dominant": "rgb(188, 177, 40)",
             "palette": {
-              "primary": "hsl(31, 61%, 46%)",
-              "secondary": "hsl(31, 41%, 56%)",
-              "accent": "hsl(61, 61%, 46%)",
-              "background": "linear-gradient(135deg, \n    hsl(31, 61%, 6%) 0%, \n    hsl(31, 31%, 0%) 100%)",
+              "primary": "hsl(56, 65%, 45%)",
+              "secondary": "hsl(56, 45%, 55%)",
+              "accent": "hsl(86, 65%, 45%)",
+              "background": "linear-gradient(135deg, \n    hsl(56, 65%, 5%) 0%, \n    hsl(56, 35%, 0%) 100%)",
               "text": "#ffffff"
             },
             "isDark": false
@@ -356,12 +356,12 @@
           "title": "The Doerfels - Sing For You",
           "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
           "colors": {
-            "dominant": "rgb(201, 176, 45)",
+            "dominant": "rgb(202, 176, 45)",
             "palette": {
-              "primary": "hsl(50, 63%, 48%)",
-              "secondary": "hsl(50, 43%, 58%)",
-              "accent": "hsl(80, 63%, 48%)",
-              "background": "linear-gradient(135deg, \n    hsl(50, 63%, 8%) 0%, \n    hsl(50, 33%, 0%) 100%)",
+              "primary": "hsl(50, 64%, 48%)",
+              "secondary": "hsl(50, 44%, 58%)",
+              "accent": "hsl(80, 64%, 48%)",
+              "background": "linear-gradient(135deg, \n    hsl(50, 64%, 8%) 0%, \n    hsl(50, 34%, 0%) 100%)",
               "text": "#ffffff"
             },
             "isDark": false
@@ -386,12 +386,12 @@
           "title": "The Doerfels - Islamorada",
           "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
           "colors": {
-            "dominant": "rgb(201, 176, 45)",
+            "dominant": "rgb(202, 176, 45)",
             "palette": {
-              "primary": "hsl(50, 63%, 48%)",
-              "secondary": "hsl(50, 43%, 58%)",
-              "accent": "hsl(80, 63%, 48%)",
-              "background": "linear-gradient(135deg, \n    hsl(50, 63%, 8%) 0%, \n    hsl(50, 33%, 0%) 100%)",
+              "primary": "hsl(50, 64%, 48%)",
+              "secondary": "hsl(50, 44%, 58%)",
+              "accent": "hsl(80, 64%, 48%)",
+              "background": "linear-gradient(135deg, \n    hsl(50, 64%, 8%) 0%, \n    hsl(50, 34%, 0%) 100%)",
               "text": "#ffffff"
             },
             "isDark": false
@@ -401,6 +401,51 @@
           "title": "The Doerfels - \"Certified Hood Doerfel Classic\"",
           "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
           "colors": {
+            "dominant": "rgb(202, 176, 45)",
+            "palette": {
+              "primary": "hsl(50, 64%, 48%)",
+              "secondary": "hsl(50, 44%, 58%)",
+              "accent": "hsl(80, 64%, 48%)",
+              "background": "linear-gradient(135deg, \n    hsl(50, 64%, 8%) 0%, \n    hsl(50, 34%, 0%) 100%)",
+              "text": "#ffffff"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "The Doerfels - Love Like Yours",
+          "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
+          "colors": {
+            "dominant": "rgb(202, 179, 45)",
+            "palette": {
+              "primary": "hsl(51, 64%, 48%)",
+              "secondary": "hsl(51, 44%, 58%)",
+              "accent": "hsl(81, 64%, 48%)",
+              "background": "linear-gradient(135deg, \n    hsl(51, 64%, 8%) 0%, \n    hsl(51, 34%, 0%) 100%)",
+              "text": "#ffffff"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "The Doerfels - \"That's An Iso, 'Unbelievable!'\"",
+          "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
+          "colors": {
+            "dominant": "rgb(202, 176, 45)",
+            "palette": {
+              "primary": "hsl(50, 64%, 48%)",
+              "secondary": "hsl(50, 44%, 58%)",
+              "accent": "hsl(80, 64%, 48%)",
+              "background": "linear-gradient(135deg, \n    hsl(50, 64%, 8%) 0%, \n    hsl(50, 34%, 0%) 100%)",
+              "text": "#ffffff"
+            },
+            "isDark": false
+          }
+        },
+        {
+          "title": "The Doerfels - Let The Buyer Beware",
+          "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
+          "colors": {
             "dominant": "rgb(201, 176, 45)",
             "palette": {
               "primary": "hsl(50, 63%, 48%)",
@@ -413,60 +458,15 @@
           }
         },
         {
-          "title": "The Doerfels - Love Like Yours",
-          "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
-          "colors": {
-            "dominant": "rgb(205, 181, 45)",
-            "palette": {
-              "primary": "hsl(51, 64%, 49%)",
-              "secondary": "hsl(51, 44%, 59%)",
-              "accent": "hsl(81, 64%, 49%)",
-              "background": "linear-gradient(135deg, \n    hsl(51, 64%, 9%) 0%, \n    hsl(51, 34%, 0%) 100%)",
-              "text": "#ffffff"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "The Doerfels - \"That's An Iso, 'Unbelievable!'\"",
-          "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
-          "colors": {
-            "dominant": "rgb(212, 131, 47)",
-            "palette": {
-              "primary": "hsl(31, 66%, 51%)",
-              "secondary": "hsl(31, 46%, 61%)",
-              "accent": "hsl(61, 66%, 51%)",
-              "background": "linear-gradient(135deg, \n    hsl(31, 66%, 11%) 0%, \n    hsl(31, 36%, 0%) 100%)",
-              "text": "#000000"
-            },
-            "isDark": false
-          }
-        },
-        {
-          "title": "The Doerfels - Let The Buyer Beware",
-          "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
-          "colors": {
-            "dominant": "rgb(204, 179, 46)",
-            "palette": {
-              "primary": "hsl(51, 63%, 49%)",
-              "secondary": "hsl(51, 43%, 59%)",
-              "accent": "hsl(81, 63%, 49%)",
-              "background": "linear-gradient(135deg, \n    hsl(51, 63%, 9%) 0%, \n    hsl(51, 33%, 0%) 100%)",
-              "text": "#ffffff"
-            },
-            "isDark": false
-          }
-        },
-        {
           "title": "The Doerfels - \"If You're Not Tuning In The Middle Of A Song, You're Not Shredding Hard Enough\"",
           "image": "https://behindthesch3m3s.com/wp-content/uploads/2024/09/doerfels-bckgrd.png",
           "colors": {
-            "dominant": "rgb(209, 178, 43)",
+            "dominant": "rgb(202, 175, 45)",
             "palette": {
-              "primary": "hsl(49, 66%, 49%)",
-              "secondary": "hsl(49, 46%, 59%)",
-              "accent": "hsl(79, 66%, 49%)",
-              "background": "linear-gradient(135deg, \n    hsl(49, 66%, 9%) 0%, \n    hsl(49, 36%, 0%) 100%)",
+              "primary": "hsl(50, 64%, 48%)",
+              "secondary": "hsl(50, 44%, 58%)",
+              "accent": "hsl(80, 64%, 48%)",
+              "background": "linear-gradient(135deg, \n    hsl(50, 64%, 8%) 0%, \n    hsl(50, 34%, 0%) 100%)",
               "text": "#ffffff"
             },
             "isDark": false
@@ -479,28 +479,28 @@
       "artist": "The Satellite Skirmish",
       "coverArt": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/the%20satellite%20skirmish%20mku.gif",
       "colors": {
-        "dominant": "rgb(33, 173, 195)",
+        "dominant": "rgb(22, 153, 173)",
         "palette": {
-          "primary": "hsl(188, 71%, 45%)",
-          "secondary": "hsl(188, 51%, 55%)",
-          "accent": "hsl(218, 71%, 45%)",
-          "background": "linear-gradient(135deg, \n    hsl(188, 71%, 5%) 0%, \n    hsl(188, 41%, 0%) 100%)",
+          "primary": "hsl(188, 77%, 38%)",
+          "secondary": "hsl(188, 57%, 48%)",
+          "accent": "hsl(218, 77%, 38%)",
+          "background": "linear-gradient(135deg, \n    hsl(188, 77%, 0%) 0%, \n    hsl(188, 47%, 0%) 100%)",
           "text": "#ffffff"
         },
-        "isDark": false
+        "isDark": true
       },
       "tracks": [
         {
           "title": "The Satellite Skirmish: Boost Recap",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sat-skirmish-boost-recap-2.gif",
           "colors": {
-            "dominant": "rgb(64, 178, 191)",
+            "dominant": "rgb(154, 181, 175)",
             "palette": {
-              "primary": "hsl(186, 50%, 50%)",
-              "secondary": "hsl(186, 30%, 60%)",
-              "accent": "hsl(216, 50%, 50%)",
-              "background": "linear-gradient(135deg, \n    hsl(186, 50%, 10%) 0%, \n    hsl(186, 20%, 0%) 100%)",
-              "text": "#ffffff"
+              "primary": "hsl(167, 15%, 66%)",
+              "secondary": "hsl(167, 0%, 76%)",
+              "accent": "hsl(197, 15%, 66%)",
+              "background": "linear-gradient(135deg, \n    hsl(167, 15%, 26%) 0%, \n    hsl(167, 0%, 6%) 100%)",
+              "text": "#000000"
             },
             "isDark": false
           }
@@ -509,13 +509,13 @@
           "title": "$2 Holla - Dusty Old Man",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/2%20dolla%20holla%201600.png",
           "colors": {
-            "dominant": "rgb(170, 90, 168)",
+            "dominant": "rgb(160, 52, 158)",
             "palette": {
-              "primary": "hsl(302, 32%, 51%)",
-              "secondary": "hsl(302, 12%, 61%)",
-              "accent": "hsl(332, 32%, 51%)",
-              "background": "linear-gradient(135deg, \n    hsl(302, 32%, 11%) 0%, \n    hsl(302, 2%, 0%) 100%)",
-              "text": "#000000"
+              "primary": "hsl(301, 51%, 42%)",
+              "secondary": "hsl(301, 31%, 52%)",
+              "accent": "hsl(331, 51%, 42%)",
+              "background": "linear-gradient(135deg, \n    hsl(301, 51%, 2%) 0%, \n    hsl(301, 21%, 0%) 100%)",
+              "text": "#ffffff"
             },
             "isDark": true
           }
@@ -524,12 +524,12 @@
           "title": "$2 Holla - Countless Needs",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/2%20dolla%20holla%201600.png",
           "colors": {
-            "dominant": "rgb(206, 109, 207)",
+            "dominant": "rgb(163, 235, 232)",
             "palette": {
-              "primary": "hsl(299, 51%, 62%)",
-              "secondary": "hsl(299, 31%, 72%)",
-              "accent": "hsl(329, 51%, 62%)",
-              "background": "linear-gradient(135deg, \n    hsl(299, 51%, 22%) 0%, \n    hsl(299, 21%, 2%) 100%)",
+              "primary": "hsl(178, 64%, 78%)",
+              "secondary": "hsl(178, 44%, 88%)",
+              "accent": "hsl(208, 64%, 78%)",
+              "background": "linear-gradient(135deg, \n    hsl(178, 64%, 38%) 0%, \n    hsl(178, 34%, 18%) 100%)",
               "text": "#000000"
             },
             "isDark": false
@@ -539,12 +539,12 @@
           "title": "$2 Holla - Holy Water",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/2%20dolla%20holla%201600.png",
           "colors": {
-            "dominant": "rgb(161, 55, 158)",
+            "dominant": "rgb(144, 40, 141)",
             "palette": {
-              "primary": "hsl(302, 49%, 42%)",
-              "secondary": "hsl(302, 29%, 52%)",
-              "accent": "hsl(332, 49%, 42%)",
-              "background": "linear-gradient(135deg, \n    hsl(302, 49%, 2%) 0%, \n    hsl(302, 19%, 0%) 100%)",
+              "primary": "hsl(302, 57%, 36%)",
+              "secondary": "hsl(302, 37%, 46%)",
+              "accent": "hsl(332, 57%, 36%)",
+              "background": "linear-gradient(135deg, \n    hsl(302, 57%, 0%) 0%, \n    hsl(302, 27%, 0%) 100%)",
               "text": "#ffffff"
             },
             "isDark": true
@@ -554,27 +554,27 @@
           "title": "$2 Holla - Baby Don't Love Me",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/2%20dolla%20holla%201600.png",
           "colors": {
-            "dominant": "rgb(145, 217, 215)",
+            "dominant": "rgb(138, 39, 135)",
             "palette": {
-              "primary": "hsl(178, 49%, 71%)",
-              "secondary": "hsl(178, 29%, 81%)",
-              "accent": "hsl(208, 49%, 71%)",
-              "background": "linear-gradient(135deg, \n    hsl(178, 49%, 31%) 0%, \n    hsl(178, 19%, 11%) 100%)",
-              "text": "#000000"
+              "primary": "hsl(302, 56%, 35%)",
+              "secondary": "hsl(302, 36%, 45%)",
+              "accent": "hsl(332, 56%, 35%)",
+              "background": "linear-gradient(135deg, \n    hsl(302, 56%, 0%) 0%, \n    hsl(302, 26%, 0%) 100%)",
+              "text": "#ffffff"
             },
-            "isDark": false
+            "isDark": true
           }
         },
         {
           "title": "$2 Holla - We Don't Want You Here Anymore",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/2%20dolla%20holla%201600.png",
           "colors": {
-            "dominant": "rgb(194, 90, 192)",
+            "dominant": "rgb(163, 235, 232)",
             "palette": {
-              "primary": "hsl(301, 46%, 56%)",
-              "secondary": "hsl(301, 26%, 66%)",
-              "accent": "hsl(331, 46%, 56%)",
-              "background": "linear-gradient(135deg, \n    hsl(301, 46%, 16%) 0%, \n    hsl(301, 16%, 0%) 100%)",
+              "primary": "hsl(178, 64%, 78%)",
+              "secondary": "hsl(178, 44%, 88%)",
+              "accent": "hsl(208, 64%, 78%)",
+              "background": "linear-gradient(135deg, \n    hsl(178, 64%, 38%) 0%, \n    hsl(178, 34%, 18%) 100%)",
               "text": "#000000"
             },
             "isDark": false
@@ -584,12 +584,12 @@
           "title": "$2 Holla - Can't Tell Me Anything",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/2%20dolla%20holla%201600.png",
           "colors": {
-            "dominant": "rgb(145, 219, 217)",
+            "dominant": "rgb(160, 229, 226)",
             "palette": {
-              "primary": "hsl(178, 51%, 71%)",
-              "secondary": "hsl(178, 31%, 81%)",
-              "accent": "hsl(208, 51%, 71%)",
-              "background": "linear-gradient(135deg, \n    hsl(178, 51%, 31%) 0%, \n    hsl(178, 21%, 11%) 100%)",
+              "primary": "hsl(177, 57%, 76%)",
+              "secondary": "hsl(177, 37%, 86%)",
+              "accent": "hsl(207, 57%, 76%)",
+              "background": "linear-gradient(135deg, \n    hsl(177, 57%, 36%) 0%, \n    hsl(177, 27%, 16%) 100%)",
               "text": "#000000"
             },
             "isDark": false
@@ -599,27 +599,27 @@
           "title": "Herbivore - Wrinkled Blanket Mountain",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/herbivore%201600.png",
           "colors": {
-            "dominant": "rgb(55, 158, 158)",
+            "dominant": "rgb(211, 117, 212)",
             "palette": {
-              "primary": "hsl(180, 48%, 42%)",
-              "secondary": "hsl(180, 28%, 52%)",
-              "accent": "hsl(210, 48%, 42%)",
-              "background": "linear-gradient(135deg, \n    hsl(180, 48%, 2%) 0%, \n    hsl(180, 18%, 0%) 100%)",
-              "text": "#ffffff"
+              "primary": "hsl(299, 52%, 65%)",
+              "secondary": "hsl(299, 32%, 75%)",
+              "accent": "hsl(329, 52%, 65%)",
+              "background": "linear-gradient(135deg, \n    hsl(299, 52%, 25%) 0%, \n    hsl(299, 22%, 5%) 100%)",
+              "text": "#000000"
             },
-            "isDark": true
+            "isDark": false
           }
         },
         {
           "title": "Herbivore - Easy Read",
           "image": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/herbivore%201600.png",
           "colors": {
-            "dominant": "rgb(135, 229, 227)",
+            "dominant": "rgb(148, 237, 236)",
             "palette": {
-              "primary": "hsl(179, 64%, 71%)",
-              "secondary": "hsl(179, 44%, 81%)",
-              "accent": "hsl(209, 64%, 71%)",
-              "background": "linear-gradient(135deg, \n    hsl(179, 64%, 31%) 0%, \n    hsl(179, 34%, 11%) 100%)",
+              "primary": "hsl(179, 71%, 75%)",
+              "secondary": "hsl(179, 51%, 85%)",
+              "accent": "hsl(209, 71%, 75%)",
+              "background": "linear-gradient(135deg, \n    hsl(179, 71%, 35%) 0%, \n    hsl(179, 41%, 15%) 100%)",
               "text": "#000000"
             },
             "isDark": false
