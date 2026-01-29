@@ -5,12 +5,12 @@
       "artist": "The Satellite Skirmish",
       "coverArt": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/sproutingsymphonies/art/sat%20spotlight%20show%20art.png",
       "colors": {
-        "dominant": "rgb(226, 195, 132)",
+        "dominant": "rgb(223, 191, 128)",
         "palette": {
-          "primary": "hsl(40, 62%, 70%)",
-          "secondary": "hsl(40, 42%, 80%)",
-          "accent": "hsl(70, 62%, 70%)",
-          "background": "linear-gradient(135deg, \n    hsl(40, 62%, 30%) 0%, \n    hsl(40, 32%, 10%) 100%)",
+          "primary": "hsl(40, 60%, 69%)",
+          "secondary": "hsl(40, 40%, 79%)",
+          "accent": "hsl(70, 60%, 69%)",
+          "background": "linear-gradient(135deg, \n    hsl(40, 60%, 29%) 0%, \n    hsl(40, 30%, 9%) 100%)",
           "text": "#000000"
         },
         "isDark": false
@@ -173,12 +173,12 @@
       "artist": "The Satellite Skirmish",
       "coverArt": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/Polar-Embrace-Feed-art-hires.gif",
       "colors": {
-        "dominant": "rgb(101, 220, 196)",
+        "dominant": "rgb(132, 209, 204)",
         "palette": {
-          "primary": "hsl(168, 63%, 63%)",
-          "secondary": "hsl(168, 43%, 73%)",
-          "accent": "hsl(198, 63%, 63%)",
-          "background": "linear-gradient(135deg, \n    hsl(168, 63%, 23%) 0%, \n    hsl(168, 33%, 3%) 100%)",
+          "primary": "hsl(176, 46%, 67%)",
+          "secondary": "hsl(176, 26%, 77%)",
+          "accent": "hsl(206, 46%, 67%)",
+          "background": "linear-gradient(135deg, \n    hsl(176, 46%, 27%) 0%, \n    hsl(176, 16%, 7%) 100%)",
           "text": "#000000"
         },
         "isDark": false
@@ -326,12 +326,12 @@
       "artist": "The Satellite Skirmish",
       "coverArt": "https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/Autumn-Rust-Feed-Art.gif",
       "colors": {
-        "dominant": "rgb(201, 49, 117)",
+        "dominant": "rgb(203, 48, 118)",
         "palette": {
-          "primary": "hsl(333, 61%, 49%)",
-          "secondary": "hsl(333, 41%, 59%)",
-          "accent": "hsl(3, 61%, 49%)",
-          "background": "linear-gradient(135deg, \n    hsl(333, 61%, 9%) 0%, \n    hsl(333, 31%, 0%) 100%)",
+          "primary": "hsl(333, 62%, 49%)",
+          "secondary": "hsl(333, 42%, 59%)",
+          "accent": "hsl(3, 62%, 49%)",
+          "background": "linear-gradient(135deg, \n    hsl(333, 62%, 9%) 0%, \n    hsl(333, 32%, 0%) 100%)",
           "text": "#ffffff"
         },
         "isDark": true
