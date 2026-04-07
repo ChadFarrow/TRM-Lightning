@@ -9,6 +9,8 @@ import { useLightning } from '@/contexts/LightningContext';
 import { useSwipeGestures } from '@/hooks/useSwipeGestures';
 import { extractColorsFromImage, createAlbumBackground, createTextOverlay, createButtonStyles, ExtractedColors } from '@/lib/color-utils';
 import { selectBestSource, getMediaType } from '@/lib/enclosure-utils';
+import { PodcastParser } from '@/lib/podcast-parser';
+import type { PodcastChapter } from '@/lib/types/podcast';
 import { performanceMonitor, getMobileOptimizations, getCachedColors, debounce } from '@/lib/performance-utils';
 import { BitcoinConnectPayment } from '@/components/BitcoinConnect';
 import { useBitcoinConnect } from '@/contexts/BitcoinConnectContext';
@@ -47,6 +49,10 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
   }, [albumData]);
   const colorCache = useRef<Map<string, ExtractedColors>>(globalColorCache);
   
+  const [chapters, setChapters] = useState<PodcastChapter[]>([]);
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(-1);
+  const chaptersTrackKeyRef = useRef<string | null>(null);
+
   const { checkConnection } = useBitcoinConnect();
 
   const {
@@ -70,6 +76,41 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     setVideoTime,
     setVideoDuration,
   } = useAudio();
+
+  // Fetch chapters when track changes
+  useEffect(() => {
+    const trackKey = currentTrack?.url || null;
+    if (trackKey === chaptersTrackKeyRef.current) return;
+    chaptersTrackKeyRef.current = trackKey;
+    setChapters([]);
+    setCurrentChapterIndex(-1);
+
+    if (!currentTrack?.chaptersUrl) return;
+
+    PodcastParser.fetchChapters(currentTrack.chaptersUrl).then((fetchedChapters) => {
+      if (chaptersTrackKeyRef.current === trackKey && fetchedChapters.length > 0) {
+        setChapters(fetchedChapters);
+      }
+    });
+  }, [currentTrack?.url, currentTrack?.chaptersUrl]);
+
+  // Track current chapter based on playback time
+  useEffect(() => {
+    if (chapters.length === 0) {
+      if (currentChapterIndex !== -1) setCurrentChapterIndex(-1);
+      return;
+    }
+    let idx = -1;
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      if (currentTime >= chapters[i].startTime) {
+        idx = i;
+        break;
+      }
+    }
+    if (idx !== currentChapterIndex) setCurrentChapterIndex(idx);
+  }, [currentTime, chapters, currentChapterIndex]);
+
+  const currentChapter = currentChapterIndex >= 0 ? chapters[currentChapterIndex] : null;
 
   // Add swipe gestures for mobile
   const swipeRef = useSwipeGestures({
@@ -716,14 +757,15 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
               controls={false}
               onClick={() => isPlaying ? pause() : resume()}
             />
-          ) : currentTrack.image ? (
+          ) : (currentChapter?.img || currentTrack.image) ? (
             <Image
-              src={currentTrack.image}
-              alt={currentTrack.title}
+              src={currentChapter?.img || currentTrack.image!}
+              alt={currentChapter?.title || currentTrack.title}
               fill
               className="object-cover rounded-lg shadow-2xl"
               sizes="(max-width: 768px) 90vw, 400px"
               priority
+              key={currentChapter?.img || currentTrack.image}
             />
           ) : (
             <div className="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center">
@@ -742,21 +784,40 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
           <p className="text-lg sm:text-xl text-white/80 truncate">
             {currentTrack.artist || 'Unknown Artist'}
           </p>
+          {currentChapter && (
+            <p className="text-sm text-white/60 truncate mt-1">
+              Ch. {currentChapterIndex + 1}/{chapters.length}: {currentChapter.title}
+            </p>
+          )}
         </div>
 
         {/* Progress Bar */}
         <div className="w-full max-w-md mb-8">
-          <input
-            type="range"
-            min="0"
-            max={duration || 0}
-            value={currentTime}
-            onChange={handleSeek}
-            className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider-large"
-            style={{
-              background: `linear-gradient(to right, #ffffff 0%, #ffffff ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) 100%)`
-            }}
-          />
+          <div className="relative">
+            <input
+              type="range"
+              min="0"
+              max={duration || 0}
+              value={currentTime}
+              onChange={handleSeek}
+              className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider-large relative z-10"
+              style={{
+                background: `linear-gradient(to right, #ffffff 0%, #ffffff ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) 100%)`
+              }}
+            />
+            {/* Chapter tick marks */}
+            {duration > 0 && chapters.length > 0 && (
+              <div className="absolute inset-0 pointer-events-none flex items-center">
+                {chapters.map((chapter, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-0.5 h-2.5 bg-white/60 rounded-full"
+                    style={{ left: `${(chapter.startTime / duration) * 100}%` }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex justify-between mt-2">
             <span className="text-xs text-white">{formatTime(currentTime)}</span>
             <span className="text-xs text-white">{formatTime(duration)}</span>
