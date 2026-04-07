@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import { toast } from '@/components/Toast';
 import { getSiteName } from '@/lib/site-config';
+import { PodcastAlternateEnclosure } from '@/lib/types/podcast';
 
 interface Track {
   title: string;
@@ -36,6 +37,10 @@ interface Track {
   publisherGuid?: string;
   publisherUrl?: string;
   imageUrl?: string;
+  alternateEnclosures?: PodcastAlternateEnclosure[];
+  originalUrl?: string; // Original enclosure URL before switching to alternate
+  originalMimeType?: string;
+  originalMediaType?: 'audio' | 'video';
 }
 
 interface AudioContextType {
@@ -83,6 +88,8 @@ interface AudioContextType {
   toggleMute: () => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
+  // Source switching for alternate enclosures
+  switchSource: (url: string, mimeType?: string, mediaType?: 'audio' | 'video') => void;
   // Video time sync (called from NowPlayingScreen)
   setVideoTime: (time: number) => void;
   setVideoDuration: (duration: number) => void;
@@ -494,6 +501,58 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsRepeating(!isRepeating);
   };
 
+  const switchSource = useCallback((url: string, mimeType?: string, mediaType?: 'audio' | 'video') => {
+    if (!currentTrack) return;
+
+    const savedTime = currentTime;
+    const wasPlaying = isPlaying;
+    const newMediaType = mediaType || currentTrack.mediaType;
+    const switchingMediaType = newMediaType !== currentTrack.mediaType;
+
+    // Store original URL on first switch so we can switch back
+    const originalUrl = currentTrack.originalUrl || currentTrack.url;
+    const originalMimeType = currentTrack.originalMimeType || currentTrack.mimeType;
+    const originalMediaType = currentTrack.originalMediaType || currentTrack.mediaType;
+
+    // Update the track
+    const updatedTrack = { ...currentTrack, url, mimeType: mimeType || currentTrack.mimeType, mediaType: newMediaType, originalUrl, originalMimeType, originalMediaType };
+    setCurrentTrack(updatedTrack);
+
+    // Update playlist entry too
+    setPlaylist(prev => prev.map((t, i) => i === currentTrackIndex ? updatedTrack : t));
+
+    if (newMediaType === 'video') {
+      // Switching to video — pause audio, let NowPlayingScreen's video effect handle it
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+      setIsPlaying(true);
+      // Video setup in NowPlayingScreen will detect the track change and seek to savedTime
+    } else {
+      // Switching to audio
+      if (switchingMediaType && videoRef.current) {
+        videoRef.current.pause();
+      }
+
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        audioRef.current.load();
+        const onCanPlay = () => {
+          if (audioRef.current) {
+            audioRef.current.currentTime = savedTime;
+            if (wasPlaying) {
+              audioRef.current.play().catch(() => {});
+            }
+          }
+          audioRef.current?.removeEventListener('canplay', onCanPlay);
+        };
+        audioRef.current.addEventListener('canplay', onCanPlay);
+        setIsPlaying(wasPlaying);
+      }
+    }
+  }, [currentTrack, currentTime, isPlaying, currentTrackIndex]);
+
   // Video time sync functions (called from NowPlayingScreen where video element exists)
   const setVideoTime = useCallback((time: number) => {
     setCurrentTime(time);
@@ -552,6 +611,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     toggleMute,
     toggleShuffle,
     toggleRepeat,
+    switchSource,
     setVideoTime,
     setVideoDuration,
   };

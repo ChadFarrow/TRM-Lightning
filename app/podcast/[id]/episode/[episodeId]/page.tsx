@@ -8,6 +8,7 @@ import { useAudio } from '@/contexts/AudioContext';
 import { useLightning } from '@/contexts/LightningContext';
 import { toast } from '@/components/Toast';
 import { fetchPodcast, episodeToTrack } from '@/lib/podcasts-service';
+import { getEnclosureLabel, selectBestSource, getMediaType } from '@/lib/enclosure-utils';
 import { generateSlug } from '@/lib/url-utils';
 import {
   Play,
@@ -807,31 +808,59 @@ export default function EpisodeDetailPage({ params }: EpisodeDetailPageProps) {
           {episode.alternateEnclosures && episode.alternateEnclosures.length > 0 && (
             <div className={`${DARK_CARD_CLASSES} p-4 sm:p-6 mb-6`}>
               <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                <Download className="w-5 h-5 text-blue-400" />
-                Download Options
+                {getMediaType(episode.alternateEnclosures[0]?.type || '') === 'video' ? (
+                  <Video className="w-5 h-5 text-blue-400" />
+                ) : (
+                  <Download className="w-5 h-5 text-blue-400" />
+                )}
+                Alternate Formats
               </h2>
               <div className="space-y-2">
-                {episode.alternateEnclosures.map((enclosure, index) => (
-                  <a
-                    key={index}
-                    href={enclosure.sources[0]?.uri}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-medium">
-                        {enclosure.title || enclosure.type}
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        {enclosure.type}
-                        {enclosure.bitrate && ` · ${enclosure.bitrate}kbps`}
-                        {enclosure.height && ` · ${enclosure.height}p`}
-                      </p>
+                {episode.alternateEnclosures.map((enclosure, index) => {
+                  const sourceUrl = selectBestSource(enclosure);
+                  if (!sourceUrl) return null;
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors"
+                    >
+                      <button
+                        onClick={() => {
+                          if (podcast) {
+                            const track = episodeToTrack(episode, podcast);
+                            track.url = sourceUrl;
+                            track.mimeType = enclosure.type;
+                            track.mediaType = getMediaType(enclosure.type);
+                            playTrack(track, podcast.title);
+                          }
+                        }}
+                        className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                        title={`Play ${getEnclosureLabel(enclosure)}`}
+                      >
+                        <Play className="w-4 h-4 text-white" />
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-medium">
+                          {getEnclosureLabel(enclosure)}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          {enclosure.type}
+                          {enclosure.bitrate && ` · ${enclosure.bitrate}kbps`}
+                          {enclosure.height && ` · ${enclosure.height}p`}
+                        </p>
+                      </div>
+                      <a
+                        href={sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-gray-400 hover:text-white transition-colors"
+                        title="Download"
+                      >
+                        <Download className="w-4 h-4" />
+                      </a>
                     </div>
-                    <Download className="w-4 h-4 text-gray-400" />
-                  </a>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

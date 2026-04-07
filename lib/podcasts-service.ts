@@ -250,7 +250,8 @@ export function episodeToTrack(episode: Episode, podcast: Podcast) {
     publisherGuid: episode.publisherGuid || podcast.publisherGuid,
     publisherUrl: episode.publisherUrl || podcast.publisherUrl,
     imageUrl: episode.image || podcast.coverArt,
-    chaptersUrl: episode.chaptersUrl
+    chaptersUrl: episode.chaptersUrl,
+    alternateEnclosures: episode.alternateEnclosures
   };
 }
 

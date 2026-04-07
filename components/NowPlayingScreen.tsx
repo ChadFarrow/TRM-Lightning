@@ -8,6 +8,7 @@ import { useAudio } from '@/contexts/AudioContext';
 import { useLightning } from '@/contexts/LightningContext';
 import { useSwipeGestures } from '@/hooks/useSwipeGestures';
 import { extractColorsFromImage, createAlbumBackground, createTextOverlay, createButtonStyles, ExtractedColors } from '@/lib/color-utils';
+import { selectBestSource, getMediaType } from '@/lib/enclosure-utils';
 import { performanceMonitor, getMobileOptimizations, getCachedColors, debounce } from '@/lib/performance-utils';
 import { BitcoinConnectPayment } from '@/components/BitcoinConnect';
 import { useBitcoinConnect } from '@/contexts/BitcoinConnectContext';
@@ -65,6 +66,7 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     seekTo,
     toggleShuffle,
     toggleRepeat,
+    switchSource,
     setVideoTime,
     setVideoDuration,
   } = useAudio();
@@ -733,11 +735,11 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
         </div>
 
         {/* Track Info */}
-        <div className="w-full max-w-md text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 truncate">
+        <div className="w-full max-w-md text-center mb-8 bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 truncate">
             {currentTrack.title}
           </h1>
-          <p className="text-lg sm:text-xl text-white/60 truncate">
+          <p className="text-lg sm:text-xl text-white/80 truncate">
             {currentTrack.artist || 'Unknown Artist'}
           </p>
         </div>
@@ -756,8 +758,8 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
             }}
           />
           <div className="flex justify-between mt-2">
-            <span className="text-xs text-white/60">{formatTime(currentTime)}</span>
-            <span className="text-xs text-white/60">{formatTime(duration)}</span>
+            <span className="text-xs text-white">{formatTime(currentTime)}</span>
+            <span className="text-xs text-white">{formatTime(duration)}</span>
           </div>
         </div>
 
@@ -768,7 +770,7 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
             <button
               onClick={toggleShuffle}
               className={`p-2 transition-colors ${
-                isShuffling ? 'text-white' : 'text-white/40 hover:text-white/60'
+                isShuffling ? 'text-white' : 'text-white/70 hover:text-white'
               }`}
               title="Toggle shuffle"
             >
@@ -816,7 +818,7 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
             <button
               onClick={toggleRepeat}
               className={`p-2 transition-colors ${
-                isRepeating ? 'text-white' : 'text-white/40 hover:text-white/60'
+                isRepeating ? 'text-white' : 'text-white/70 hover:text-white'
               }`}
               title="Toggle repeat"
             >
@@ -825,6 +827,63 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
               </svg>
             </button>
           </div>
+
+          {/* Audio/Video Toggle - show when alternate enclosures have a different media type */}
+          {currentTrack?.alternateEnclosures && currentTrack.alternateEnclosures.length > 0 && (() => {
+            // Check if there's a video alternate when playing audio, or vice versa
+            const hasVideoAlt = currentTrack.alternateEnclosures!.some(e => getMediaType(e.type) === 'video');
+            if (!hasVideoAlt) return null;
+
+            return (
+              <div className="flex items-center justify-center">
+                <div className="flex items-center bg-black/40 backdrop-blur-md rounded-full p-1 border border-black/20 shadow-lg">
+                  <button
+                    onClick={() => {
+                      if (isVideo && currentTrack.originalUrl) {
+                        switchSource(currentTrack.originalUrl, currentTrack.originalMimeType, currentTrack.originalMediaType || 'audio');
+                      }
+                    }}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      !isVideo
+                        ? 'bg-white text-black shadow-sm'
+                        : 'text-white/70 hover:text-white'
+                    }`}
+                    title="Audio"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                    Audio
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!isVideo) {
+                        // Switch to video - find the first video alternate enclosure
+                        const videoEnclosure = currentTrack.alternateEnclosures!.find(e => getMediaType(e.type) === 'video');
+                        if (videoEnclosure) {
+                          const sourceUrl = selectBestSource(videoEnclosure);
+                          if (sourceUrl) {
+                            switchSource(sourceUrl, videoEnclosure.type, 'video');
+                          }
+                        }
+                      }
+                    }}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      isVideo
+                        ? 'bg-white text-black shadow-sm'
+                        : 'text-white/70 hover:text-white'
+                    }`}
+                    title="Video"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Video
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Boost Button Row - only show when Lightning is enabled */}
           {isLightningEnabled && (

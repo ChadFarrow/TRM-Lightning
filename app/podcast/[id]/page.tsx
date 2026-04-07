@@ -8,6 +8,7 @@ import { useAudio } from '@/contexts/AudioContext';
 import { useLightning } from '@/contexts/LightningContext';
 import { toast } from '@/components/Toast';
 import { fetchPodcast, podcastToAlbum, episodeToTrack } from '@/lib/podcasts-service';
+import { stripHtml } from '@/lib/html-utils';
 import {
   Mic,
   Play,
@@ -319,7 +320,7 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
           {podcast.description && (
             <div className={`${DARK_CARD_CLASSES} p-4 sm:p-6 mb-8`}>
               <h2 className="text-lg font-semibold text-white mb-3">About</h2>
-              <p className="text-gray-300 whitespace-pre-line">{podcast.description}</p>
+              <p className="text-gray-300 whitespace-pre-line">{stripHtml(podcast.description)}</p>
             </div>
           )}
 

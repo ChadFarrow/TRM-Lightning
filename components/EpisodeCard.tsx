@@ -3,6 +3,7 @@
 import { useState, memo } from 'react';
 import Link from 'next/link';
 import { Play, Pause, Clock, Calendar, FileText, Users, Zap, Video, Mic } from 'lucide-react';
+import { stripHtml } from '@/lib/html-utils';
 import { useLightning } from '@/contexts/LightningContext';
 import { DARK_CARD_CLASSES, DARK_BADGE_BG, DARK_BADGE_TEXT } from '@/lib/theme-utils';
 import { generateSlug } from '@/lib/url-utils';
@@ -306,7 +307,7 @@ function EpisodeCard({
         {/* Description */}
         {episode.description && (
           <p className="text-gray-400 text-xs sm:text-sm mt-1.5 line-clamp-2">
-            {episode.description}
+            {stripHtml(episode.description)}
           </p>
         )}
 

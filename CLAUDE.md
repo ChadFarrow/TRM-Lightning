@@ -57,10 +57,12 @@ React components
 | `albums-service.ts` | Album aggregation and color extraction |
 | `nwc-service.ts` | Nostr Wallet Connect (NIP-47) for Lightning payments |
 | `boost-to-nostr-service.ts` | Posts boosts to Nostr network (Kind 1, 9734, 9735) |
+| `enclosure-utils.ts` | Alternate enclosure helpers (labels, source selection, media type detection) |
+| `html-utils.ts` | HTML stripping and entity decoding for RSS descriptions |
 
 ### Context Providers
 
-- **AudioContext** - Unified audio/video playback, playlist management, Media Session API
+- **AudioContext** - Unified audio/video playback, playlist management, Media Session API, `switchSource()` for alternate enclosure toggling
 - **LightningContext** - Feature toggle for Lightning payments
 - **BitcoinConnectContext** - NWC wallet connection state
 
@@ -73,7 +75,7 @@ React components
 
 ### Podcasting 2.0 Features Implemented
 
-Chapters, transcripts (SRT/VTT/JSON), value splits, value time splits, persons (guests/hosts), alternate enclosures (HLS/video), GUID for Nostr tagging, location, license, funding links, soundbites.
+Chapters, transcripts (SRT/VTT/JSON), value splits, value time splits, persons (guests/hosts), alternate enclosures (HLS/video with audio/video toggle in player), GUID for Nostr tagging, location, license, funding links, soundbites.
 
 ### Payment Flow
 
@@ -92,6 +94,7 @@ NEXT_PUBLIC_SITE_NOSTR_NSEC    # Site's Nostr private key for boost posting
 
 - All external RSS fetches go through `/api/fetch-rss` for security and caching
 - Color extraction happens at build time via `scripts/build-rss-data.ts`
-- Track objects have `mediaType: 'audio' | 'video'` for unified playback
+- Track objects have `mediaType: 'audio' | 'video'` for unified playback and `alternateEnclosures` for format switching
+- RSS descriptions are cleaned via `stripHtml()` from `lib/html-utils.ts`
 - HLS streams supported via hls.js
 - PWA support with next-pwa (service worker currently disabled)

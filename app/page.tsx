@@ -90,6 +90,8 @@ import type { FilterType, ViewType } from '@/components/ControlsBar';
 import type { Podcast, Episode } from '@/lib/types/podcast';
 import { fetchPodcasts, podcastToAlbum } from '@/lib/podcasts-service';
 
+const BTWTS_FEED_URL = 'https://serve.podhome.fm/rss/c5e5322c-0144-498b-b8d9-a4eb958cf98a';
+
 export default function HomePage() {
   const { isLightningEnabled } = useLightning();
   const [isLoading, setIsLoading] = useState(true);
@@ -514,9 +516,9 @@ export default function HomePage() {
   const audioTracks = useMemo(() => extractAudioTracks(albums), [albums]);
   const fullShowTracks = useMemo(() => extractFullShowTracks(albums), [albums]);
 
-  // Load podcasts when filter changes to 'podcasts'
+  // Load podcasts when filter changes to 'podcasts' or 'btwts'
   useEffect(() => {
-    if (activeFilter === 'podcasts' && podcasts.length === 0 && !podcastsLoading) {
+    if ((activeFilter === 'podcasts' || activeFilter === 'btwts') && podcasts.length === 0 && !podcastsLoading) {
       setPodcastsLoading(true);
       fetchPodcasts()
         .then((fetchedPodcasts) => {
@@ -531,6 +533,11 @@ export default function HomePage() {
         });
     }
   }, [activeFilter, podcasts.length, podcastsLoading]);
+
+  // Filter podcasts by feed for BTS vs BTWTS tabs
+  const btwtsPodcasts = podcasts.filter(p => p.feedUrl === BTWTS_FEED_URL);
+  const btsPodcasts = podcasts.filter(p => p.feedUrl !== BTWTS_FEED_URL);
+  const displayPodcasts = activeFilter === 'btwts' ? btwtsPodcasts : btsPodcasts;
 
   // Handle playing a podcast
   const handlePlayPodcast = useCallback((podcast: Podcast, e: React.MouseEvent | React.TouchEvent) => {
@@ -565,7 +572,9 @@ export default function HomePage() {
       case 'audio':
         return audioTracks.length;
       case 'podcasts':
-        return podcasts.length;
+        return btsPodcasts.length;
+      case 'btwts':
+        return btwtsPodcasts.length;
       default:
         return filteredAlbums.length;
     }
@@ -713,7 +722,8 @@ export default function HomePage() {
                   activeFilter === 'band_sets' ? 'Sets' :
                   activeFilter === 'videos' ? 'Videos' :
                   activeFilter === 'audio' ? 'Tracks' :
-                  activeFilter === 'podcasts' ? 'Podcasts' : 'Items'}
+                  activeFilter === 'podcasts' ? 'Podcasts' :
+                  activeFilter === 'btwts' ? 'Podcasts' : 'Items'}
                 className="mb-8"
               />
 
@@ -952,20 +962,20 @@ export default function HomePage() {
                     ))}
                   </div>
                 )
-              ) : activeFilter === 'podcasts' ? (
+              ) : (activeFilter === 'podcasts' || activeFilter === 'btwts') ? (
                 // Podcasts - Display podcast cards
                 podcastsLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <LoadingSpinner />
                     <span className="ml-3 text-gray-400">Loading podcasts...</span>
                   </div>
-                ) : podcasts.length === 0 ? (
+                ) : displayPodcasts.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-gray-400">No podcasts found. Add podcast feeds to get started.</p>
                   </div>
                 ) : viewType === 'list' ? (
                   <div className="space-y-2">
-                    {podcasts.map((podcast, index) => (
+                    {displayPodcasts.map((podcast, index) => (
                       <div
                         key={`podcast-list-${index}`}
                         className={`${DARK_CARD_CLASSES} p-3 sm:p-4 flex items-center gap-3 sm:gap-4 cursor-pointer hover:bg-white/10 transition-colors`}
@@ -995,7 +1005,7 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                    {podcasts.map((podcast, index) => (
+                    {displayPodcasts.map((podcast, index) => (
                       <PodcastCard
                         key={`podcast-${index}`}
                         podcast={podcast}

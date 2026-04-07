@@ -2,7 +2,7 @@
 
 import { Filter, Grid3X3, List, Shuffle, Mic } from 'lucide-react';
 
-export type FilterType = 'full_shows' | 'band_sets' | 'videos' | 'audio' | 'playlist' | 'podcasts';
+export type FilterType = 'full_shows' | 'band_sets' | 'videos' | 'audio' | 'playlist' | 'podcasts' | 'btwts';
 export type ViewType = 'grid' | 'list';
 interface ControlsBarProps {
   // Filter props
@@ -32,6 +32,7 @@ const defaultFilters: { value: FilterType; label: string; icon?: React.ReactNode
   { value: 'videos', label: 'Videos' },
   { value: 'audio', label: 'Audio' },
   { value: 'podcasts', label: 'BTS', icon: <Mic className="w-3 h-3" /> },
+  { value: 'btwts', label: 'BTWTS', icon: <Mic className="w-3 h-3" /> },
 ];
 
 export default function ControlsBar({
@@ -62,7 +63,7 @@ export default function ControlsBar({
                   onClick={() => onFilterChange(filter.value)}
                   className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap transition-all touch-manipulation flex-shrink-0 flex items-center gap-1 ${
                     activeFilter === filter.value
-                      ? filter.value === 'podcasts'
+                      ? (filter.value === 'podcasts' || filter.value === 'btwts')
                         ? 'bg-purple-500/40 text-white shadow-sm drop-shadow-sm'
                         : 'bg-white/30 text-white shadow-sm drop-shadow-sm'
                       : 'text-gray-200 hover:text-white hover:bg-white/20 active:bg-white/25'
