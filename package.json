@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "(tsx scripts/build-rss-data.ts || echo '⚠️ RSS data generation failed, continuing build...') && (tsx scripts/build-podcast-data.ts || echo '⚠️ Podcast data generation failed, continuing build...')",
+    "prebuild": "(npx tsx scripts/build-rss-data.ts || echo '⚠️ RSS data generation failed, continuing build...') && (npx tsx scripts/build-podcast-data.ts || echo '⚠️ Podcast data generation failed, continuing build...')",
     "build": "next build",
     "build:lightning": "cp .env.lightning .env.local && npm run build",
     "build:basic": "cp .env.basic .env.local && npm run build",
