@@ -81,7 +81,6 @@ async function buildPodcastData(): Promise<void> {
   // Trim episode data to reduce file size — keep only what's needed for display and playback
   const trimmedPodcasts = podcasts.map((podcast: any) => ({
     ...podcast,
-    description: podcast.description?.substring(0, 200) || '',
     episodes: podcast.episodes.map((ep: any) => ({
       title: ep.title,
       url: ep.url,
@@ -93,8 +92,11 @@ async function buildPodcastData(): Promise<void> {
       mimeType: ep.mimeType,
       guid: ep.guid,
       chaptersUrl: ep.chaptersUrl,
-      description: ep.description?.substring(0, 200) || '',
+      description: ep.description || '',
       alternateEnclosures: ep.alternateEnclosures,
+      transcripts: ep.transcripts,
+      persons: ep.persons,
+      location: ep.location,
     })),
   }));
 
