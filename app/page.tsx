@@ -706,7 +706,7 @@ export default function HomePage() {
                 Retry
               </button>
             </div>
-          ) : getFilteredCount() > 0 ? (
+          ) : (getFilteredCount() > 0 || activeFilter === 'podcasts' || activeFilter === 'btwts') ? (
             <div className="max-w-7xl mx-auto">
               {/* Controls Bar */}
               <ControlsBar
