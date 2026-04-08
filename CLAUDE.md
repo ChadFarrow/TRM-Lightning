@@ -27,15 +27,17 @@ npm run test-feeds       # Test RSS feed parsing
 ```
 feeds.json / podcast-feeds.json (feed URLs)
     ↓
-/api/fetch-rss (proxy with CORS handling, caching)
+Build-time: scripts/build-rss-data.ts, scripts/build-podcast-data.ts
     ↓
 rss-parser.ts / podcast-parser.ts (XML → objects)
     ↓
 Color extraction (colorthief from album art)
+Chapter pre-fetching (podcast chapters JSON)
     ↓
 public/static-albums.json, public/data/albums-with-colors.json
+public/static-podcasts.json (includes pre-fetched chapters)
     ↓
-React components
+React components (runtime fallback via /api/fetch-rss if static data missing)
 ```
 
 ### Key Directories
@@ -93,8 +95,13 @@ NEXT_PUBLIC_SITE_NOSTR_NSEC    # Site's Nostr private key for boost posting
 ## Key Patterns
 
 - All external RSS fetches go through `/api/fetch-rss` for security and caching
-- Color extraction happens at build time via `scripts/build-rss-data.ts`
-- Track objects have `mediaType: 'audio' | 'video'` for unified playback and `alternateEnclosures` for format switching
+- Album data pre-parsed at build time via `scripts/build-rss-data.ts`
+- Podcast data pre-parsed at build time via `scripts/build-podcast-data.ts` (includes chapters for 158+ episodes)
+- To refresh static podcast data: `npx tsx scripts/build-podcast-data.ts` then commit `public/static-podcasts.json`
+- `podcasts-service.ts` loads from `static-podcasts.json` first, falls back to runtime RSS fetch
+- Track objects have `mediaType: 'audio' | 'video'` for unified playback, `alternateEnclosures` for format switching, and `chapters` for pre-loaded chapter data
+- NowPlayingScreen shows chapter title, tick marks on progress bar, and chapter artwork
+- Color extraction skips GIF images (unstable colors from animation); falls back to album cover art
 - RSS descriptions are cleaned via `stripHtml()` from `lib/html-utils.ts`
 - HLS streams supported via hls.js
 - PWA support with next-pwa (service worker currently disabled)
