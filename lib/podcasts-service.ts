@@ -53,11 +53,27 @@ export function removePodcastFeed(feedUrl: string): void {
  */
 async function fetchStaticPodcasts(): Promise<Podcast[] | null> {
   try {
+    // Server-side: read from filesystem directly
+    if (typeof window === 'undefined') {
+      const fs = await import('fs');
+      const path = await import('path');
+      const filePath = path.join(process.cwd(), 'public', 'static-podcasts.json');
+      if (fs.existsSync(filePath)) {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+        if (data.podcasts?.length > 0) {
+          console.log(`📻 Loaded ${data.podcasts.length} podcast(s) from static build data (fs)`);
+          return data.podcasts;
+        }
+      }
+      return null;
+    }
+
+    // Client-side: fetch from public URL
     const response = await fetch('/static-podcasts.json', { cache: 'no-store' });
     if (!response.ok) return null;
 
     const data = await response.json();
-    if (data.podcasts && Array.isArray(data.podcasts) && data.podcasts.length > 0) {
+    if (data.podcasts?.length > 0) {
       console.log(`📻 Loaded ${data.podcasts.length} podcast(s) from static build data`);
       return data.podcasts;
     }
