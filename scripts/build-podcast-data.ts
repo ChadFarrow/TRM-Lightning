@@ -78,11 +78,31 @@ async function buildPodcastData(): Promise<void> {
     }
   }
 
+  // Trim episode data to reduce file size — keep only what's needed for display and playback
+  const trimmedPodcasts = podcasts.map((podcast: any) => ({
+    ...podcast,
+    description: podcast.description?.substring(0, 200) || '',
+    episodes: podcast.episodes.map((ep: any) => ({
+      title: ep.title,
+      url: ep.url,
+      duration: ep.duration,
+      pubDate: ep.pubDate,
+      image: ep.image,
+      episodeNumber: ep.episodeNumber,
+      mediaType: ep.mediaType,
+      mimeType: ep.mimeType,
+      guid: ep.guid,
+      chaptersUrl: ep.chaptersUrl,
+      description: ep.description?.substring(0, 200) || '',
+      alternateEnclosures: ep.alternateEnclosures,
+    })),
+  }));
+
   // Write static podcasts JSON
   const outputPath = path.join(projectRoot, 'public', 'static-podcasts.json');
   const outputData = {
-    podcasts,
-    count: podcasts.length,
+    podcasts: trimmedPodcasts,
+    count: trimmedPodcasts.length,
     timestamp: new Date().toISOString(),
     source: 'build-time-rss-parse',
     generated: true,
@@ -90,7 +110,7 @@ async function buildPodcastData(): Promise<void> {
     ...(errors.length > 0 ? { errors } : {}),
   };
 
-  fs.writeFileSync(outputPath, JSON.stringify(outputData, null, 2));
+  fs.writeFileSync(outputPath, JSON.stringify(outputData));
   console.log(`\n✅ Wrote ${podcasts.length} podcast(s) to ${outputPath}`);
 
   if (errors.length > 0) {
