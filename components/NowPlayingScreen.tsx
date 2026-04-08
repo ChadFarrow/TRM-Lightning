@@ -816,12 +816,12 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
             />
             {/* Chapter tick marks */}
             {duration > 0 && chapters.length > 0 && (
-              <div className="absolute inset-0 pointer-events-none flex items-center">
+              <div className="absolute inset-0 pointer-events-none">
                 {chapters.map((chapter, i) => (
                   <div
                     key={i}
                     className="absolute w-0.5 h-2.5 bg-white/60 rounded-full"
-                    style={{ left: `${(chapter.startTime / duration) * 100}%` }}
+                    style={{ left: `${(chapter.startTime / duration) * 100}%`, top: '50%', transform: 'translateY(-50%)' }}
                   />
                 ))}
               </div>
