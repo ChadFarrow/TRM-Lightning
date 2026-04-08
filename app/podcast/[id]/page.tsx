@@ -208,11 +208,11 @@ export default function PodcastDetailPage({ params }: PodcastDetailPageProps) {
         <div className="container mx-auto px-4 py-8 pb-32">
           {/* Back button */}
           <Link
-            href="/podcasts"
+            href="/"
             className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Podcasts
+            Back
           </Link>
 
           {/* Podcast Header */}
