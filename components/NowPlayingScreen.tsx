@@ -77,7 +77,7 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     setVideoDuration,
   } = useAudio();
 
-  // Fetch chapters when track changes
+  // Load chapters when track changes (use pre-loaded if available, fetch as fallback)
   useEffect(() => {
     const trackKey = currentTrack?.url || null;
     if (trackKey === chaptersTrackKeyRef.current) return;
@@ -85,14 +85,23 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
     setChapters([]);
     setCurrentChapterIndex(-1);
 
-    if (!currentTrack?.chaptersUrl) return;
+    if (!currentTrack) return;
+
+    // Use pre-loaded chapters from static data if available
+    if (currentTrack.chapters && currentTrack.chapters.length > 0) {
+      setChapters(currentTrack.chapters);
+      return;
+    }
+
+    // Fallback: fetch chapters from URL
+    if (!currentTrack.chaptersUrl) return;
 
     PodcastParser.fetchChapters(currentTrack.chaptersUrl).then((fetchedChapters) => {
       if (chaptersTrackKeyRef.current === trackKey && fetchedChapters.length > 0) {
         setChapters(fetchedChapters);
       }
     });
-  }, [currentTrack?.url, currentTrack?.chaptersUrl]);
+  }, [currentTrack?.url, currentTrack?.chaptersUrl, currentTrack?.chapters]);
 
   // Track current chapter based on playback time
   useEffect(() => {

@@ -299,6 +299,7 @@ export function episodeToTrack(episode: Episode, podcast: Podcast) {
     publisherUrl: episode.publisherUrl || podcast.publisherUrl,
     imageUrl: episode.image || podcast.coverArt,
     chaptersUrl: episode.chaptersUrl,
+    chapters: episode.chapters,
     alternateEnclosures: episode.alternateEnclosures
   };
 }

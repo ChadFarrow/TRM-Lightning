@@ -39,6 +39,7 @@ interface Track {
   imageUrl?: string;
   alternateEnclosures?: PodcastAlternateEnclosure[];
   chaptersUrl?: string;
+  chapters?: any[];
   originalUrl?: string; // Original enclosure URL before switching to alternate
   originalMimeType?: string;
   originalMediaType?: 'audio' | 'video';

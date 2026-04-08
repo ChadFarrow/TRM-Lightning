@@ -67,6 +67,39 @@ async function buildPodcastData(): Promise<void> {
 
       if (podcast) {
         console.log(`  ✅ ${podcast.title} - ${podcast.episodes.length} episodes`);
+
+        // Pre-fetch chapters for all episodes that have a chaptersUrl
+        let chaptersCount = 0;
+        for (const episode of podcast.episodes) {
+          if (episode.chaptersUrl) {
+            try {
+              const chapResp = await fetch(episode.chaptersUrl, {
+                headers: { 'User-Agent': 'TRM-Lightning/1.0' },
+                signal: AbortSignal.timeout(10000),
+              });
+              if (chapResp.ok) {
+                const chapData = await chapResp.json();
+                if (chapData.chapters && Array.isArray(chapData.chapters)) {
+                  episode.chapters = chapData.chapters.map((ch: any) => ({
+                    startTime: ch.startTime || 0,
+                    endTime: ch.endTime,
+                    title: ch.title || '',
+                    img: ch.img,
+                    url: ch.url,
+                    toc: ch.toc !== false,
+                  }));
+                  chaptersCount++;
+                }
+              }
+            } catch {
+              // Skip failed chapter fetches
+            }
+          }
+        }
+        if (chaptersCount > 0) {
+          console.log(`    📑 Pre-fetched chapters for ${chaptersCount} episodes`);
+        }
+
         podcasts.push(podcast);
       } else {
         console.log(`  ⚠️ No podcast data returned for ${feedUrl}`);
@@ -78,33 +111,13 @@ async function buildPodcastData(): Promise<void> {
     }
   }
 
-  // Trim episode data to reduce file size — keep only what's needed for display and playback
-  const trimmedPodcasts = podcasts.map((podcast: any) => ({
-    ...podcast,
-    episodes: podcast.episodes.map((ep: any) => ({
-      title: ep.title,
-      url: ep.url,
-      duration: ep.duration,
-      pubDate: ep.pubDate,
-      image: ep.image,
-      episodeNumber: ep.episodeNumber,
-      mediaType: ep.mediaType,
-      mimeType: ep.mimeType,
-      guid: ep.guid,
-      chaptersUrl: ep.chaptersUrl,
-      description: ep.description || '',
-      alternateEnclosures: ep.alternateEnclosures,
-      transcripts: ep.transcripts,
-      persons: ep.persons,
-      location: ep.location,
-    })),
-  }));
+  // Keep all episode data — pre-parsed chapters, value splits, etc.
 
   // Write static podcasts JSON
   const outputPath = path.join(projectRoot, 'public', 'static-podcasts.json');
   const outputData = {
-    podcasts: trimmedPodcasts,
-    count: trimmedPodcasts.length,
+    podcasts,
+    count: podcasts.length,
     timestamp: new Date().toISOString(),
     source: 'build-time-rss-parse',
     generated: true,
