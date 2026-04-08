@@ -368,7 +368,7 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
 
       // If track has its own image but no track-specific colors, extract from track image immediately
       // Don't fall back to album colors if track has unique artwork
-      if (!colors && track.image) {
+      if (!colors && track.image && !track.image.toLowerCase().endsWith('.gif')) {
         console.log('🎨 [Color Load] Track has unique image, extracting colors from track artwork:', {
           trackTitle: track.title,
           trackImage: track.image,
