@@ -49,6 +49,25 @@ export function removePodcastFeed(feedUrl: string): void {
 }
 
 /**
+ * Try loading pre-built static podcast data (generated at build time)
+ */
+async function fetchStaticPodcasts(): Promise<Podcast[] | null> {
+  try {
+    const response = await fetch('/static-podcasts.json', { cache: 'no-store' });
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data.podcasts && Array.isArray(data.podcasts) && data.podcasts.length > 0) {
+      console.log(`📻 Loaded ${data.podcasts.length} podcast(s) from static build data`);
+      return data.podcasts;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Fetch all podcasts from configured feeds
  */
 export async function fetchPodcasts(options?: {
@@ -62,6 +81,19 @@ export async function fetchPodcasts(options?: {
   if (!forceRefresh && podcastCache && Date.now() - podcastCache.lastUpdated < podcastCache.ttl) {
     console.log('📻 Returning cached podcasts (cache hit)');
     return podcastCache.podcasts;
+  }
+
+  // Try static build data first (instant load)
+  if (!forceRefresh && !feedUrls) {
+    const staticPodcasts = await fetchStaticPodcasts();
+    if (staticPodcasts && staticPodcasts.length > 0) {
+      podcastCache = {
+        podcasts: staticPodcasts,
+        lastUpdated: Date.now(),
+        ttl: CACHE_TTL
+      };
+      return staticPodcasts;
+    }
   }
 
   const startTime = performance.now();

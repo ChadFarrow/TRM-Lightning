@@ -128,37 +128,43 @@ export class PodcastParser {
   /**
    * Parse a podcast RSS feed
    */
-  static async parsePodcastFeed(feedUrl: string): Promise<Podcast | null> {
+  static async parsePodcastFeed(feedUrl: string, preloadedXml?: string): Promise<Podcast | null> {
     return withRetry(async () => {
       verboseLog('[PodcastParser] Parsing podcast feed', { feedUrl });
 
-      const baseUrl = getApiBaseUrl();
-      const proxyUrl = `${baseUrl}/api/fetch-rss?url=${encodeURIComponent(feedUrl)}`;
+      let xmlText: string;
 
-      let response;
-      try {
-        response = await fetch(proxyUrl);
-      } catch (error) {
-        throw new AppError(
-          'Failed to fetch podcast feed',
-          ErrorCodes.RSS_FETCH_ERROR,
-          500,
-          true,
-          { feedUrl, error }
-        );
+      if (preloadedXml) {
+        xmlText = preloadedXml;
+      } else {
+        const baseUrl = getApiBaseUrl();
+        const proxyUrl = `${baseUrl}/api/fetch-rss?url=${encodeURIComponent(feedUrl)}`;
+
+        let response;
+        try {
+          response = await fetch(proxyUrl);
+        } catch (error) {
+          throw new AppError(
+            'Failed to fetch podcast feed',
+            ErrorCodes.RSS_FETCH_ERROR,
+            500,
+            true,
+            { feedUrl, error }
+          );
+        }
+
+        if (!response.ok) {
+          throw new AppError(
+            `Failed to fetch podcast feed: ${response.status}`,
+            ErrorCodes.RSS_FETCH_ERROR,
+            response.status,
+            response.status >= 500,
+            { feedUrl, status: response.status }
+          );
+        }
+
+        xmlText = await response.text();
       }
-
-      if (!response.ok) {
-        throw new AppError(
-          `Failed to fetch podcast feed: ${response.status}`,
-          ErrorCodes.RSS_FETCH_ERROR,
-          response.status,
-          response.status >= 500,
-          { feedUrl, status: response.status }
-        );
-      }
-
-      const xmlText = await response.text();
 
       if (!xmlText || typeof xmlText !== 'string' || !xmlText.includes('<')) {
         throw new AppError(
