@@ -516,23 +516,16 @@ export default function HomePage() {
   const audioTracks = useMemo(() => extractAudioTracks(albums), [albums]);
   const fullShowTracks = useMemo(() => extractFullShowTracks(albums), [albums]);
 
-  // Load podcasts when filter changes to 'podcasts' or 'btwts'
+  // Pre-load podcasts on mount (212KB static file, loads in background)
   useEffect(() => {
-    if ((activeFilter === 'podcasts' || activeFilter === 'btwts') && podcasts.length === 0 && !podcastsLoading) {
-      setPodcastsLoading(true);
-      fetchPodcasts()
-        .then((fetchedPodcasts) => {
-          setPodcasts(fetchedPodcasts);
-        })
-        .catch((err) => {
-          console.error('Error loading podcasts:', err);
-          toast.error('Failed to load podcasts');
-        })
-        .finally(() => {
-          setPodcastsLoading(false);
-        });
-    }
-  }, [activeFilter, podcasts.length, podcastsLoading]);
+    fetchPodcasts()
+      .then((fetchedPodcasts) => {
+        setPodcasts(fetchedPodcasts);
+      })
+      .catch((err) => {
+        console.error('Error loading podcasts:', err);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filter podcasts by feed for BTS vs BTWTS tabs
   const btwtsPodcasts = podcasts.filter(p => p.feedUrl === BTWTS_FEED_URL);
