@@ -69,7 +69,7 @@ async function fetchStaticPodcasts(): Promise<Podcast[] | null> {
     }
 
     // Client-side: fetch from public URL
-    const response = await fetch('/static-podcasts.json', { cache: 'no-store' });
+    const response = await fetch('/static-podcasts.json');
     if (!response.ok) return null;
 
     const data = await response.json();

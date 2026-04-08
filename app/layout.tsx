@@ -330,55 +330,6 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        {/* Chrome polyfill using Next.js Script for better execution order */}
-        <Script
-          id="chrome-polyfill"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              // CRITICAL: Define chrome/browser polyfills IMMEDIATELY before any other code
-              (function() {
-                'use strict';
-                try {
-                  var chromePolyfill = {
-                    runtime: {
-                      onConnect: { addListener: function() {}, removeListener: function() {} },
-                      onMessage: { addListener: function() {}, removeListener: function() {} },
-                      connect: function() { return { onMessage: { addListener: function() {} }, postMessage: function() {}, disconnect: function() {} }; },
-                      sendMessage: function() {},
-                      getURL: function() { return ''; },
-                      getManifest: function() { return {}; }
-                    },
-                    storage: {
-                      local: { get: function() {}, set: function() {}, remove: function() {}, clear: function() {} },
-                      sync: { get: function() {}, set: function() {}, remove: function() {}, clear: function() {} }
-                    },
-                    tabs: { query: function() {}, create: function() {}, update: function() {}, get: function() {} },
-                    windows: { create: function() {}, get: function() {}, getAll: function() {} },
-                    extension: { getURL: function() { return ''; }, getBackgroundPage: function() { return null; } }
-                  };
-                  
-                  if (typeof globalThis !== 'undefined') {
-                    globalThis.chrome = globalThis.chrome || chromePolyfill;
-                    globalThis.browser = globalThis.browser || chromePolyfill;
-                  }
-                  if (typeof window !== 'undefined') {
-                    window.chrome = window.chrome || chromePolyfill;
-                    window.browser = window.browser || chromePolyfill;
-                  }
-                  if (typeof self !== 'undefined') {
-                    self.chrome = self.chrome || chromePolyfill;
-                    self.browser = self.browser || chromePolyfill;
-                  }
-                  if (typeof global !== 'undefined') {
-                    global.chrome = global.chrome || chromePolyfill;
-                    global.browser = global.browser || chromePolyfill;
-                  }
-                } catch (e) {}
-              })();
-            `
-          }}
-        />
         <ClientErrorBoundary>
           <ErrorBoundary>
             <LightningProvider>

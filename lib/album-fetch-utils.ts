@@ -40,9 +40,7 @@ export async function fetchAlbumsWithFallback(options?: {
           // Try to fetch static file directly (fastest, no serverless function)
           console.log('🔄 Trying to load static album file directly...');
           try {
-            const staticResponse = await fetch('/static-albums.json', {
-              cache: 'no-store' // Always fetch fresh
-            });
+            const staticResponse = await fetch('/static-albums.json');
             
             if (staticResponse.ok) {
               const staticData = await staticResponse.json();
