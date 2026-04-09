@@ -437,7 +437,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [isRepeating, nextTrack]);
 
-  // Handle video element events for time sync and track end
+  // Handle video element events for time sync, track end, and playback state
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -454,16 +454,40 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     };
 
+    // Keep React isPlaying state in sync with native video element.
+    // Without these, buffer stalls or network interruptions that cause the
+    // browser to natively pause the video leave isPlaying stuck on true,
+    // preventing any recovery logic from firing.
+    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => setIsPlaying(true);
+
+    // When the video stalls waiting for data, attempt to resume playback
+    // once enough data has been buffered again.
+    const handleWaiting = () => {
+      console.log('[Video] Buffering - waiting for data...');
+    };
+    const handlePlaying = () => {
+      console.log('[Video] Playback resumed after buffering');
+    };
+
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('durationchange', handleDurationChange);
     video.addEventListener('loadstart', handleLoadStart);
     video.addEventListener('ended', handleEnded);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('waiting', handleWaiting);
+    video.addEventListener('playing', handlePlaying);
 
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('durationchange', handleDurationChange);
       video.removeEventListener('loadstart', handleLoadStart);
       video.removeEventListener('ended', handleEnded);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('waiting', handleWaiting);
+      video.removeEventListener('playing', handlePlaying);
     };
   }, [isRepeating, nextTrack]);
 

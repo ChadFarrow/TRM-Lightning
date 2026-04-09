@@ -182,9 +182,17 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
         });
       } else if (Hls.isSupported()) {
         // Use HLS.js for Chrome, Firefox, etc.
+        // Configure larger buffers for long-form content to reduce stalls
         const hls = new Hls({
           enableWorker: true,
           lowLatencyMode: false,
+          maxBufferLength: 60,           // Buffer up to 60s ahead (default 30s)
+          maxMaxBufferLength: 600,       // Allow up to 10 min max buffer
+          maxBufferHole: 0.5,            // Tolerate 0.5s gaps in buffer
+          fragLoadingMaxRetry: 6,        // Retry fragment loads up to 6 times
+          fragLoadingRetryDelay: 1000,   // Start with 1s retry delay
+          manifestLoadingMaxRetry: 4,    // Retry manifest loads
+          levelLoadingMaxRetry: 4,       // Retry level loads
         });
         hlsRef.current = hls;
         hls.loadSource(url);
@@ -207,9 +215,18 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
           if (data.fatal) {
             console.error('HLS fatal error:', data.type, data.details);
             if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              // Network error — restart loading to recover
+              console.log('[HLS] Attempting network error recovery...');
               hls.startLoad();
             } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              // Media error — attempt recovery
+              console.log('[HLS] Attempting media error recovery...');
               hls.recoverMediaError();
+            }
+          } else {
+            // Non-fatal errors: log buffer stalls for diagnostics
+            if (data.details === 'bufferStalledError') {
+              console.warn('[HLS] Buffer stalled — playback may resume when data arrives');
             }
           }
         });
@@ -254,6 +271,63 @@ const NowPlayingScreen: React.FC<NowPlayingScreenProps> = ({ isOpen, onClose }) 
       video.pause();
     }
   }, [isOpen, isVideo, isPlaying, videoRef]);
+
+  // Stall recovery: detect when video is paused unexpectedly (e.g. buffer stall,
+  // network hiccup) and attempt to resume playback. This is the main fix for
+  // video stopping after long playback periods.
+  useEffect(() => {
+    if (!isOpen || !isVideo || !videoRef.current) return;
+
+    const video = videoRef.current;
+    let recoveryTimer: ReturnType<typeof setInterval> | null = null;
+
+    const attemptRecovery = () => {
+      // Only recover if we think we should be playing but the video is paused
+      // and it hasn't ended
+      if (video.paused && !video.ended && video.readyState >= 2) {
+        console.log('[Video] Detected unexpected pause, attempting recovery...');
+        video.play().catch(error => {
+          if (error.name !== 'AbortError') {
+            console.warn('[Video] Recovery play failed:', error);
+            // If HLS, try restarting the load
+            if (hlsRef.current) {
+              console.log('[Video] Restarting HLS load for recovery...');
+              hlsRef.current.startLoad();
+            }
+          }
+        });
+      }
+    };
+
+    // Listen for the video stalling — set up periodic recovery attempts
+    const handleStalled = () => {
+      console.log('[Video] Stalled event fired, starting recovery timer...');
+      if (!recoveryTimer) {
+        recoveryTimer = setInterval(attemptRecovery, 5000);
+      }
+    };
+
+    // Once playing again, clear recovery timer
+    const handlePlaying = () => {
+      if (recoveryTimer) {
+        clearInterval(recoveryTimer);
+        recoveryTimer = null;
+      }
+    };
+
+    video.addEventListener('stalled', handleStalled);
+    video.addEventListener('waiting', handleStalled);
+    video.addEventListener('playing', handlePlaying);
+
+    return () => {
+      video.removeEventListener('stalled', handleStalled);
+      video.removeEventListener('waiting', handleStalled);
+      video.removeEventListener('playing', handlePlaying);
+      if (recoveryTimer) {
+        clearInterval(recoveryTimer);
+      }
+    };
+  }, [isOpen, isVideo, videoRef]);
 
   // Performance-optimized color loading with mobile considerations
   const loadColors = useRef(debounce(async (albumTitle: string, track: any) => {
